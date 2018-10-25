@@ -144,6 +144,7 @@ public class Compiler {
 	private void classDec() {
 		if ( lexer.token == Token.ID && lexer.getStringValue().equals("open") ) {
 			// open class
+            lexer.nextToken();
 		}
 		if ( lexer.token != Token.CLASS ) error("'class' expected");
 		lexer.nextToken();
@@ -205,7 +206,8 @@ public class Compiler {
 		}
 		else if ( lexer.token == Token.IDCOLON ) {
 			// keyword method. It has parameters
-
+            next();
+            formalParamDec();
 		}
 		else {
 			error("An identifier or identifer: was expected after 'func'");
@@ -221,11 +223,25 @@ public class Compiler {
 		next();
 		statementList();
 		if ( lexer.token != Token.RIGHTCURBRACKET ) {
-			error("'{' expected");
+			error("'}' expected");
 		}
 		next();
 
 	}
+
+    private void formalParamDec(){
+        type();
+        if( lexer.token != Token.ID )
+            this.error("A variable name was expected");
+        next();
+        while ( lexer.token == Token.COMMA  ) {
+            lexer.nextToken();
+            type();
+            if ( lexer.token != Token.ID )
+                this.error("A variable name was expected");
+            next();
+        }
+    }
 
 	private void statementList() {
 		  // only '}' is necessary in this test
@@ -281,14 +297,11 @@ public class Compiler {
 		next();
 		type();
 		check(Token.ID, "A variable name was expected");
-		while ( lexer.token == Token.ID ) {
+        next();
+		while ( lexer.token == Token.COMMA ) {
 			next();
-			if ( lexer.token == Token.COMMA ) {
-				next();
-			}
-			else {
-				break;
-			}
+			check(Token.ID, "A variable name was expected");
+			next();
 		}
 		if ( lexer.token == Token.ASSIGN ) {
 			next();
@@ -304,6 +317,8 @@ public class Compiler {
 			statement();
 		}
 		check(Token.UNTIL, "'until' was expected");
+        next();
+        expr();
 	}
 
 	private void breakStat() {
@@ -356,6 +371,7 @@ public class Compiler {
 		next();
 		check(Token.IDCOLON, "'print:' or 'println:' was expected after 'Out.'");
 		String printName = lexer.getStringValue();
+        next();
 		expr();
 	}
 
@@ -380,6 +396,9 @@ public class Compiler {
 				}
 			}
 		}
+
+        if(lexer.token==Token.SEMICOLON)
+            next();
 
 	}
 
@@ -442,8 +461,8 @@ public class Compiler {
 		}
 		String message = lexer.getLiteralStringValue();
 		lexer.nextToken();
-		if ( lexer.token == Token.SEMICOLON )
-			lexer.nextToken();
+		/*if ( lexer.token == Token.SEMICOLON )
+			lexer.nextToken();*/
 
 		return null;
 	}
