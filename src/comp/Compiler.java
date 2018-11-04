@@ -285,6 +285,10 @@ public class Compiler {
 			}
 			else {
 				expr();
+                if(lexer.token==Token.ASSIGN){
+                    next();
+                    expr();
+                }
 			}
 
 		}
@@ -376,8 +380,155 @@ public class Compiler {
 	}
 
 	private void expr() {
-
+        simpleExpr();
+        if(lexer.token==Token.EQ || lexer.token==Token.GT || lexer.token==Token.GE ||
+            lexer.token==Token.LT || lexer.token==Token.LE || lexer.token==Token.NEQ){
+            next();
+            simpleExpr();
+        }
 	}
+
+    private void simpleExpr(){
+        sumSubExpr();
+        while(lexer.token==Token.CONCAT){
+            next();
+            sumSubExpr();
+        }
+    }
+
+    private void sumSubExpr(){
+        term();
+        while(lexer.token==Token.PLUS || lexer.token==Token.MINUS || lexer.token==Token.OR){
+            next();
+            term();
+        }
+    }
+
+    private void term(){
+        signalFactor();
+        while(lexer.token==Token.MULT || lexer.token==Token.DIV || lexer.token==Token.AND){
+            next();
+            signalFactor();
+        }
+    }
+
+    private void signalFactor(){
+        if(lexer.token==Token.PLUS || lexer.token==Token.MINUS)
+            next();
+        factor();
+    }
+
+    private void factor(){
+        if(lexer.token==Token.LITERALINT || lexer.token==Token.LITERALSTRING ||
+            lexer.token==Token.TRUE || lexer.token==Token.FALSE){
+            next();
+        }
+        else if(lexer.token==Token.LEFTPAR){
+            next();
+            expr();
+            if(lexer.token!=Token.RIGHTPAR)
+                this.error("')' was expected");
+        }
+        else if(lexer.token==Token.NOT){
+            next();
+            factor();
+        }
+        else if(lexer.token==Token.SUPER || lexer.token==Token.SELF){
+            primaryExpr();
+        }
+        else if(lexer.token==Token.ID){
+            if(lexer.getStringValue().equals("In"))
+                readExpr();
+            else{
+                next();
+                if(lexer.token==Token.DOT){
+                    next();
+                    if(lexer.token==Token.NEW)
+                        next();
+                    else
+                        primaryExpr();
+                }
+            }
+        }
+        else if(lexer.token!=Token.NULL)
+            this.error("Term not expected");
+        else
+            next();
+    }
+
+    private void readExpr(){
+        next();
+        if(lexer.token!=Token.DOT)
+            this.error("'.' was expected");
+        next();
+        if ( lexer.token == Token.ID &&
+            (lexer.getStringValue().equals("readInt") ||  lexer.getStringValue().equals("readString"))){
+            next()
+        }
+        else{
+            this.error("'readInt' or 'readString' expected");
+        }
+    }
+
+    private primaryExpr(){
+        if(lexer.token==Token.SUPER){
+            next();
+            if(lexer.token!=Token.DOT)
+                this.error("'.' was expected");
+            next();
+            if(lexer.token==Token.IDCOLON){
+                next();
+                expressionList();
+            }
+            else if(lexer.token!=Token.ID)
+                this.error("Identifer was expected");
+            else
+                next();
+        }
+        else if(lexer.token==Token.SELF){
+            next();
+            if(lexer.token==Token.DOT){
+                next();
+                if(lexer.token==Token.IDCOLON){
+                    next();
+                    expressionList();
+                }
+                else if(lexer.token==Token.ID){
+                    next();
+                    if(lexer.token==Token.DOT){
+                        next();
+                        if(lexer.token==Token.IDCOLON){
+                            next();
+                            expressionList();
+                        }
+                        else if(lexer.token!=Token.ID)
+                            this.error("Identifer was expected");
+                        else
+                            next();
+                    }
+                }
+            }
+        }
+
+        else{
+            if(lexer.token==Token.IDCOLON){
+                next();
+                expressionList();
+            }
+            else if(lexer.token!=Token.ID)
+                this.error("Identifer was expected");
+            else
+                next();
+        }
+    }
+
+    private void expressionList(){
+        expr();
+        while(lexer.token==Token.COMMA){
+            next();
+            expr();
+        }
+    }
 
 	private void fieldDec() {
 		lexer.nextToken();
