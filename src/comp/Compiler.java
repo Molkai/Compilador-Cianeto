@@ -267,9 +267,6 @@ public class Compiler {
 		case BREAK:
 			breakStat();
 			break;
-		case SEMICOLON:
-			next();
-			break;
 		case REPEAT:
 			repeatStat();
 			break;
@@ -294,6 +291,7 @@ public class Compiler {
 		}
 		if ( checkSemiColon ) {
 			check(Token.SEMICOLON, "';' expected");
+            next();
 		}
 	}
 
