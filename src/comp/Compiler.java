@@ -463,14 +463,14 @@ public class Compiler {
         next();
         if ( lexer.token == Token.ID &&
             (lexer.getStringValue().equals("readInt") ||  lexer.getStringValue().equals("readString"))){
-            next()
+            next();
         }
         else{
             this.error("'readInt' or 'readString' expected");
         }
     }
 
-    private primaryExpr(){
+    private void primaryExpr(){
         if(lexer.token==Token.SUPER){
             next();
             if(lexer.token!=Token.DOT)
