@@ -342,6 +342,7 @@ public class Compiler {
 			statement();
 		}
 		check(Token.RIGHTCURBRACKET, "'}' was expected");
+        next();
 	}
 
 	private void ifStat() {
@@ -353,6 +354,7 @@ public class Compiler {
 			statement();
 		}
 		check(Token.RIGHTCURBRACKET, "'}' was expected");
+        next();
 		if ( lexer.token == Token.ELSE ) {
 			next();
 			check(Token.LEFTCURBRACKET, "'{' expected after 'else'");
@@ -361,6 +363,7 @@ public class Compiler {
 				statement();
 			}
 			check(Token.RIGHTCURBRACKET, "'}' was expected");
+            next();
 		}
 	}
 
@@ -426,6 +429,7 @@ public class Compiler {
             expr();
             if(lexer.token!=Token.RIGHTPAR)
                 this.error("')' was expected");
+            next();
         }
         else if(lexer.token==Token.NOT){
             next();
@@ -449,7 +453,7 @@ public class Compiler {
             }
         }
         else if(lexer.token!=Token.NULL)
-            this.error("Term not expected");
+            this.error("Expression expected");
         else
             next();
     }
