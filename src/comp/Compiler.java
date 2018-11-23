@@ -31,46 +31,47 @@ public class Compiler {
 
 	private Program program(ArrayList<CompilationError> compilationErrorList) {
 		// Program ::= CianetoClass { CianetoClass }
-		ArrayList<MetaobjectAnnotation> metaobjectCallList = new ArrayList<>();
-		ArrayList<CianetoClass> CianetoClassList = new ArrayList<>();
-		Program program = new Program(CianetoClassList, metaobjectCallList, compilationErrorList);
-		boolean thereWasAnError = false;
-		while ( lexer.token == Token.CLASS ||
-				(lexer.token == Token.ID && lexer.getStringValue().equals("open") ) ||
-				lexer.token == Token.ANNOT ) {
-			try {
-				while ( lexer.token == Token.ANNOT ) {
-					metaobjectAnnotation(metaobjectCallList);
-				}
-				classDec();
-			}
-			catch( CompilerError e) {
-				// if there was an exception, there is a compilation error
-				thereWasAnError = true;
-				while ( lexer.token != Token.CLASS && lexer.token != Token.EOF ) {
-					try {
-						next();
-					}
-					catch ( RuntimeException ee ) {
-						e.printStackTrace();
-						return program;
-					}
-				}
-			}
-			catch ( RuntimeException e ) {
-				e.printStackTrace();
-				thereWasAnError = true;
-			}
+        ArrayList<MetaobjectAnnotation> metaobjectCallList = new ArrayList<>();
+        ArrayList<CianetoClass> CianetoClassList = new ArrayList<>();
+        Program program = new Program(CianetoClassList, metaobjectCallList, compilationErrorList);
+        boolean thereWasAnError = false;
+        while ( lexer.token == Token.CLASS ||
+                (lexer.token == Token.ID && lexer.getStringValue().equals("open") ) ||
+                lexer.token == Token.ANNOT ) {
+            try {
+                while ( lexer.token == Token.ANNOT ) {
+                    metaobjectAnnotation(metaobjectCallList);
+                }
+                CianetoClass c = classDec();
+                CianetoClassList.add(c);
+            }
+            catch( CompilerError e) {
+                // if there was an exception, there is a compilation error
+                thereWasAnError = true;
+                while ( lexer.token != Token.CLASS && lexer.token != Token.EOF ) {
+                    try {
+                        next();
+                    }
+                    catch ( RuntimeException ee ) {
+                        e.printStackTrace();
+                        return program;
+                    }
+                }
+            }
+            catch ( RuntimeException e ) {
+                e.printStackTrace();
+                thereWasAnError = true;
+            }
 
-		}
-		if ( !thereWasAnError && lexer.token != Token.EOF ) {
-			try {
-				error("End of file expected");
-			}
-			catch( CompilerError e) {
-			}
-		}
-		return program;
+        }
+        if ( !thereWasAnError && lexer.token != Token.EOF ) {
+            try {
+                error("End of file expected");
+            }
+            catch( CompilerError e) {
+            }
+        }
+        return program;
 	}
 
 	/**  parses a metaobject annotation as <code>{@literal @}cep(...)</code> in <br>
@@ -141,47 +142,64 @@ public class Compiler {
 		if ( getNextToken ) lexer.nextToken();
 	}
 
-	private void classDec() {
-		if ( lexer.token == Token.ID && lexer.getStringValue().equals("open") ) {
-			// open class
+	private CianetoClass classDec() {
+        boolean isOpen = false;
+        CianetoClass superClass = null;
+        if ( lexer.token == Token.ID && lexer.getStringValue().equals("open") ) {
+              isOpen = true;
+              next();
+        }
+        if ( lexer.token != Token.CLASS ) error("'class' expected");
+        lexer.nextToken();
+        if ( lexer.token != Token.ID )
+            error("Identifier expected");
+        String className = lexer.getStringValue();
+        if(symbolTable.getInGlobal(className)!=null)
+            error("Class "+className+" already exists.");
+        lexer.nextToken();
+        if ( lexer.token == Token.EXTENDS ) {
             lexer.nextToken();
-		}
-		if ( lexer.token != Token.CLASS ) error("'class' expected");
-		lexer.nextToken();
-		if ( lexer.token != Token.ID )
-			error("Identifier expected");
-		String className = lexer.getStringValue();
-		lexer.nextToken();
-		if ( lexer.token == Token.EXTENDS ) {
-			lexer.nextToken();
-			if ( lexer.token != Token.ID )
-				error("Identifier expected");
-			String superclassName = lexer.getStringValue();
+            if ( lexer.token != Token.ID )
+                error("Identifier expected");
+            String superclassName = lexer.getStringValue();
+            if(symbolTable.getInGlobal(superclassName)==null)
+                error("Class "+superclassName+" does not exist.");
+            superClass = (CianetoClass) symbolTable.getInGlobal(superclassName);
+            if(!superClass.getOpen())
+                error("Class "+superClass.getCname()+" can not be inherited.");
+            lexer.nextToken();
+        }
 
-			lexer.nextToken();
-		}
+        ArrayList<Member> m = memberList();
+        if ( lexer.token != Token.END)
+            error("'end' expected");
+        lexer.nextToken();
 
-		memberList();
-		if ( lexer.token != Token.END)
-			error("'end' expected");
-		lexer.nextToken();
+        CianetoClass c = new CianetoClass(className, isOpen, superClass, m);
 
-	}
+        symbolTable.putInGlobal(className, c);
 
-	private void memberList() {
-		while ( true ) {
-			qualifier();
-			if ( lexer.token == Token.VAR ) {
-				fieldDec();
-			}
-			else if ( lexer.token == Token.FUNC ) {
-				methodDec();
-			}
-			else {
-				break;
-			}
-		}
-	}
+        return c;
+
+    }
+
+	private ArrayList<Member> memberList() {
+        ArrayList<Member> memberList = new ArrayList<Member>();
+        while ( true ) {
+            Qualifier q = qualifier();
+            if ( lexer.token == Token.VAR ) {
+                memberList.add(fieldDec(q));
+            }
+            else if ( lexer.token == Token.FUNC ) {
+                memberList.add(methodDec(q));
+            }
+            else {
+                break;
+            }
+        }
+
+        return memberList;
+    }
 
 	private void error(String msg) {
 		this.signalError.showError(msg);
@@ -532,69 +550,87 @@ public class Compiler {
         }
     }
 
-	private void fieldDec() {
-		lexer.nextToken();
-		type();
-		if ( lexer.token != Token.ID ) {
-			this.error("A variable name was expected");
-		}
-		else {
-			while ( lexer.token == Token.ID  ) {
-				lexer.nextToken();
-				if ( lexer.token == Token.COMMA ) {
-					lexer.nextToken();
-				}
-				else {
-					break;
-				}
-			}
-		}
+    private Member fieldDec(Qualifier q) {
+        lexer.nextToken();
+        Type t = type();
+        if ( lexer.token != Token.ID ) {
+            this.error("A variable name was expected");
+        }
+        else {
+            while ( lexer.token == Token.ID  ) {
+
+                lexer.nextToken();
+                if ( lexer.token == Token.COMMA ) {
+                    lexer.nextToken();
+                }
+                else {
+                    break;
+                }
+            }
+        }
 
         if(lexer.token==Token.SEMICOLON)
             next();
 
-	}
+    }
 
 	private void type() {
-		if ( lexer.token == Token.INT || lexer.token == Token.BOOLEAN || lexer.token == Token.STRING ) {
-			next();
-		}
-		else if ( lexer.token == Token.ID ) {
-			next();
-		}
-		else {
-			this.error("A type was expected");
-		}
+        Type t = null;
+        if ( lexer.token == Token.INT || lexer.token == Token.BOOLEAN || lexer.token == Token.STRING ) {
+            if(lexer.token == Token.BOOLEAN)
+                t = Type.booleanType;
+            else if(lexer.token == Token.INT)
+                t = Type.intType;
+            else
+                t = Type.stringType;
+            next();
+        }
+        else if ( lexer.token == Token.ID ) {
+            if(symbolTable.getInGlobal(lexer.getStringValue())==null)
+                error("Class "+lexer.getStringValue()+" does not exist");
+            t = new Type(lexer.getStringValue());
+            next();
+        }
+        else {
+            this.error("A type was expected");
+        }
+        return t;
 
-	}
+    }
 
 
-	private void qualifier() {
-		if ( lexer.token == Token.PRIVATE ) {
-			next();
-		}
-		else if ( lexer.token == Token.PUBLIC ) {
-			next();
-		}
-		else if ( lexer.token == Token.OVERRIDE ) {
-			next();
-			if ( lexer.token == Token.PUBLIC ) {
-				next();
-			}
-		}
-		else if ( lexer.token == Token.FINAL ) {
-			next();
-			if ( lexer.token == Token.PUBLIC ) {
-				next();
-			}
-			else if ( lexer.token == Token.OVERRIDE ) {
-				next();
-				if ( lexer.token == Token.PUBLIC ) {
-					next();
-				}
-			}
-		}
-	}
+    private void qualifier() {
+        if ( lexer.token == Token.PRIVATE ) {
+            next();
+            return new Qualifier(false, true, false, false);
+        }
+        else if ( lexer.token == Token.PUBLIC ) {
+            next();
+            return new Qualifier(true, false, false, false);
+        }
+        else if ( lexer.token == Token.OVERRIDE ) {
+            next();
+            if ( lexer.token == Token.PUBLIC ) {
+                next();
+            }
+            return new Qualifier(true, false, false, true);
+        }
+        else if ( lexer.token == Token.FINAL ) {
+            next();
+            if ( lexer.token == Token.PUBLIC ) {
+                next();
+                return new Qualifier(true, false, true, false);
+            }
+            else if ( lexer.token == Token.OVERRIDE ) {
+                next();
+                if ( lexer.token == Token.PUBLIC ) {
+                    next();
+                }
+                return new Qualifier(true, false, true, true);
+            }
+        }
+        return null;
+    }
 	/**
 	 * change this method to 'private'.
 	 * uncomment it
