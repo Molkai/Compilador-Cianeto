@@ -25,6 +25,10 @@ public class CianetoClass extends Type {
         return open;
     }
 
+    public Member getMemberList(){
+        return memberList;
+    }
+
     private String name;
     private CianetoClass superClass;
     private ArrayList<Member> memberList;

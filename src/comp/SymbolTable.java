@@ -5,6 +5,8 @@ public class SymbolTable {
     public SymbolTable() {
         globalTable = new Hashtable<String, Object>();
         localTable  = new Hashtable<String, Object>();
+        superClassTable = new Hashtable<String, Object>();
+        classTable = new Hashtable<String, Object>();
     }
 
     public Object putInGlobal( String key, Object value ) {
@@ -15,12 +17,28 @@ public class SymbolTable {
        return localTable.put(key, value);
     }
 
+    public Object putInSuperClass( String key, Object value ) {
+       return superClassTable.put(key, value);
+    }
+
+    public Object putInClass( String key, Object value ) {
+       return classTable.put(key, value);
+    }
+
     public Object getInLocal( String key ) {
        return localTable.get(key);
     }
 
     public Object getInGlobal( String key ) {
        return globalTable.get(key);
+    }
+
+    public Object getInSuperClass( String key ) {
+       return superClassTable.get(key);
+    }
+
+    public Object getInClass( String key ) {
+       return classTable.get(key);
     }
 
     public Object get( String key ) {
@@ -41,6 +59,12 @@ public class SymbolTable {
          localTable.clear();
     }
 
+    public void removeClassIdent() {
+           // remove all local identifiers from the table
+         superClassTable.clear();
+         classTable.clear();
+    }
 
-    private Hashtable<String, Object> globalTable, localTable;
+
+    private Hashtable<String, Object> globalTable, localTable, superClassTable, classTable;
 }

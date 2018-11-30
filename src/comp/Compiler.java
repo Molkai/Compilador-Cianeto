@@ -167,10 +167,21 @@ public class Compiler {
             superClass = (CianetoClass) symbolTable.getInGlobal(superclassName);
             if(!superClass.getOpen())
                 error("Class "+superClass.getCname()+" can not be inherited.");
+            CianetoClass auxSuperClass = superClass;
+            do{
+                ArrayList<Member> auxMemberList = auxSuperClass.getMemberList();
+                for(int i=0; i<auxMemberList.size(); i++){
+                    Member member = auxMemberList.get(i);
+                    if(member instanceof Method && member.getQualifier().isPublic() && !member.getQualifier().isFinal()){
+                        symbolTable.putInSuperClass(member.getName(), member);
+                    }
+                }
+                auxSuperClass = auxSuperClass.getSClass();
+            }while(auxSuperClass!=null)
             lexer.nextToken();
         }
 
-        ArrayList<Member> m = memberList();
+        ArrayList<Member> m = memberList(isOpen);
         if ( lexer.token != Token.END)
             error("'end' expected");
         lexer.nextToken();
@@ -179,11 +190,13 @@ public class Compiler {
 
         symbolTable.putInGlobal(className, c);
 
+        symbolTable.removeClassIdent();
+
         return c;
 
     }
 
-	private ArrayList<Member> memberList() {
+	private ArrayList<Member> memberList(boolean isOpen) {
         ArrayList<Member> memberList = new ArrayList<Member>();
         while ( true ) {
             Qualifier q = qualifier();
@@ -191,7 +204,7 @@ public class Compiler {
                 memberList.add(fieldDec(q));
             }
             else if ( lexer.token == Token.FUNC ) {
-                memberList.add(methodDec(q));
+                memberList.add(methodDec(q, isOpen));
             }
             else {
                 break;
@@ -215,17 +228,27 @@ public class Compiler {
 		}
 	}
 
-	private void methodDec() {
-		lexer.nextToken();
+	private Member methodDec(Qualifier q, boolean isOpen) {
+		if(!isOpen && q.isFinal())
+            this.error("A method cannot be final in this class.");
+        lexer.nextToken();
+        VariableList paramList = new VariableList();
+        Type type = Type.undefinedType;
 		if ( lexer.token == Token.ID ) {
 			// unary method
+            String methodName = lexer.getStringValue();
+            if(symbolTable.getInClass(methodName)!=null)
+                this.error("Name already in use in this class.");
 			lexer.nextToken();
 
 		}
 		else if ( lexer.token == Token.IDCOLON ) {
 			// keyword method. It has parameters
+            String methodName = lexer.getStringValue();
+            if(symbolTable.getInClass(methodName)!=null)
+                this.error("Name already in use in this class.");
             next();
-            formalParamDec();
+            paramList = formalParamDec();
 		}
 		else {
 			error("An identifier or identifer: was expected after 'func'");
@@ -233,39 +256,75 @@ public class Compiler {
 		if ( lexer.token == Token.MINUS_GT ) {
 			// method declared a return type
 			lexer.nextToken();
-			type();
+			type = type();
 		}
+        Method m = (Method) symbolTable.getInSuperClass(methodName);
+        if(q.isOverride()){
+            if(m==null)
+                this.error("The method "+methodName+" does not exist in the super class.");
+            else if(m.getQualifier().isFinal())
+                this.error("The super method is final.");
+            else if(!type.getName().equals(m.getReturnType().getName()))
+                this.error("Return type is different from the super method return type.");
+            else if(paramList.getSize()!=m.getParamList().getSize())
+                this.error("Method signature is different from super method signature.");
+            int i = 0;
+            while(i<paramList.getSize()){
+                if(!paramList.get(i).getType().getName().equals(m.getParamList().get(i).getType().getName()))
+                    this.error("Method signature is different from super method signature.");
+            }
+        }
+        else if(m!=null)
+            this.error("The method "+methodName+" is already defined in a super class.");
 		if ( lexer.token != Token.LEFTCURBRACKET ) {
 			error("'{' expected");
 		}
 		next();
-		statementList();
+		ArrayList<Statement> s = statementList();
 		if ( lexer.token != Token.RIGHTCURBRACKET ) {
 			error("'}' expected");
 		}
+        Method method = new Method(methodName, paramList, type, s, q);
+        symbolTable.putInClass(methodName, method);
+        symbolTable.removeLocalIdent();
 		next();
-
+        return method;
 	}
 
-    private void formalParamDec(){
-        type();
+    private VariableList formalParamDec(){
+        VariableList variableList = new VariableList();
+        Variable v;
+        Type t = type();
         if( lexer.token != Token.ID )
             this.error("A variable name was expected");
+        if(symbolTable.getInLocal(lexer.getStringValue())!=null)
+            this.error("Variable already declared.");
+        v = new Variable(lexer.getStringValue(), t);
+        symbolTable.putInLocal(v.getName(), v);
+        variableList.add(v);
         next();
         while ( lexer.token == Token.COMMA  ) {
             lexer.nextToken();
-            type();
+            t = type();
             if ( lexer.token != Token.ID )
                 this.error("A variable name was expected");
+            if(symbolTable.getInLocal(lexer.getStringValue())!=null)
+                this.error("Variable already declared.");
+            v = new Variable(lexer.getStringValue(), t);
+            symbolTable.putInLocal(v.getName(), v);
+            variableList.add(v);
             next();
         }
+        return variableList;
     }
 
-	private void statementList() {
+	private ArrayList<Statement> statementList() {
 		  // only '}' is necessary in this test
+        ArrayList<Statement> statementList = new ArrayList<>();
 		while ( lexer.token != Token.RIGHTCURBRACKET && lexer.token != Token.END ) {
-			statement();
+			statementList.add(statement());
 		}
+        return statementList;
 	}
 
 	private void statement() {
@@ -552,13 +611,20 @@ public class Compiler {
 
     private Member fieldDec(Qualifier q) {
         lexer.nextToken();
+        if(q!=null && !q.isPrivate())
+            this.error("Variable must be private.");
+        VariableList variableList = new VariableList();
         Type t = type();
         if ( lexer.token != Token.ID ) {
             this.error("A variable name was expected");
         }
         else {
             while ( lexer.token == Token.ID  ) {
-
+                if(symbolTable.getInClass(lexer.getStringValue())!=null)
+                    this.error("Name already in use.");
+                Variable v = new Variable(lexer.getStringValue(), t);
+                variableList.add(v);
+                symbolTable.putInClass(v.getName(), v);
                 lexer.nextToken();
                 if ( lexer.token == Token.COMMA ) {
                     lexer.nextToken();
@@ -571,6 +637,8 @@ public class Compiler {
 
         if(lexer.token==Token.SEMICOLON)
             next();
+
+        return variableList;
 
     }
 

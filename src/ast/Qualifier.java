@@ -10,7 +10,7 @@ abstract public class Qualifier {
     }
 
     public boolean isPublic() {
-        return pub || over || fin;
+        return pub;
     }
 
     public boolean isPrivate() {
