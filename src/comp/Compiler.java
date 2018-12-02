@@ -327,7 +327,7 @@ public class Compiler {
         return statementList;
 	}
 
-	private void statement() {
+	private Statement statement() {
 		boolean checkSemiColon = true;
 		switch ( lexer.token ) {
 		case IF:
@@ -374,7 +374,7 @@ public class Compiler {
 
 	private void localDec() {
 		next();
-		type();
+		Type t = type();
 		check(Token.ID, "A variable name was expected");
         next();
 		while ( lexer.token == Token.COMMA ) {
@@ -457,156 +457,324 @@ public class Compiler {
 		expr();
 	}
 
-	private void expr() {
-        simpleExpr();
+	private Type expr() {
+        Type t1 = simpleExpr();
         if(lexer.token==Token.EQ || lexer.token==Token.GT || lexer.token==Token.GE ||
             lexer.token==Token.LT || lexer.token==Token.LE || lexer.token==Token.NEQ){
+            Token op = lexer.token
             next();
-            simpleExpr();
+            Type t2 = simpleExpr();
+            if(t1==Type.undefinedType || t2==Type.undefinedType)
+                this.error("Cant compare "+t1.getName()+" and "+t2.getName()+" types.");
+            if(t1==Type.intType && t2==t1)
+                return Type.booleanType;
+            if(op==Token.EQ || op==Token.NEQ){
+                if(t1==Type.booleanType){
+                    if(t1!=t2)
+                        this.error("Cant compare "+t1.getName()+" and "+t2.getName()+" types.");
+                    return Type.booleanType;
+                }
+                if(t1==Type.stringType){
+                    if(t2!=Type.nullType && t1!=t2)
+                        this.error("Cant compare "+t1.getName()+" and "+t2.getName()+" types.");
+                    return Type.booleanType;
+                }
+                if(t1==Type.nullType){
+                    if(t2!=Type.stringType && (t2==Type.intType || t2==Type.booleanType))
+                        this.error("Cant compare "+t1.getName()+" and "+t2.getName()+" types.");
+                    return Type.booleanType;
+                }
+                else{
+                    if(t2==Type.nullType)
+                        return Type.booleanType;
+                    CianetoClass class = (CianetoClass) symbolTable.getInGlobal(t1.getName());
+                    do{
+                        if(class.getName().equals(t2.getName()))
+                            return Type.booleanType;
+                        class = class.getSClass();
+                    }while(class!=null);
+                    class = (CianetoClass) symbolTable.getInGlobal(t2.getName());
+                    do{
+                        if(class.getName().equals(t1.getName()))
+                            return Type.booleanType;
+                        class = class.getSClass();
+                    }while(class!=null);
+                    this.error("Cant compare "+t1.getName()+" and "+t2.getName()+" types.");
+                }
+            }
+            this.error("Cant compare "+t1.getName()+" and "+t2.getName()+" types using this operator.");
         }
+        return t1;
 	}
 
-    private void simpleExpr(){
-        sumSubExpr();
+    private Type simpleExpr(){
+        boolean isConcat = false;
+        Type t1 = sumSubExpr();
         while(lexer.token==Token.CONCAT){
+            isConcat = true;
             next();
-            sumSubExpr();
+            Type t2 = sumSubExpr();
+            if((t1!=Type.stringType || t1!=Type.intType) && (t2!=Type.stringType || t2!=Type.intType))
+                this.error("Cant concat "+t1.getName()+" and "+t2.getName()+" types.");
         }
+        if(isConcat)
+            return Type.stringType;
+        return t1;
     }
 
-    private void sumSubExpr(){
-        term();
+    private Type sumSubExpr(){
+        Type t1 = term();
         while(lexer.token==Token.PLUS || lexer.token==Token.MINUS || lexer.token==Token.OR){
+            Token op = lexer.token;
             next();
-            term();
+            Type t2 = term();
+            if(op==Token.OR){
+                if(t1!=Type.booleanType || t1!=t2)
+                    this.error("Cant use or on "+t1.getName()+" and "+t2.getName()+" types.");
+            }
+            else{
+                if(t1!=Type.intType || t1!=t2)
+                    this.error("Cant use + or - on "+t1.getName()+" and "+t2.getName()+" types.");
+            }
+            t1 = t2;
         }
+        return t1;
     }
 
-    private void term(){
-        signalFactor();
+    private Type term(){
+        Type t1 = signalFactor();
         while(lexer.token==Token.MULT || lexer.token==Token.DIV || lexer.token==Token.AND){
+            Token op = lexer.token;
             next();
-            signalFactor();
+            Type t2 = signalFactor();
+            if(op==Token.AND){
+                if(t1!=Type.booleanType || t1!=t2)
+                    this.error("Cant use and on "+t1.getName()+" and "+t2.getName()+" types.");
+            }
+            else{
+                if(t1!=Type.intType || t1!=t2)
+                    this.error("Cant use * or / on "+t1.getName()+" and "+t2.getName()+" types.");
+            }
+            t1 = t2;
         }
+        return t1;
     }
 
-    private void signalFactor(){
+    private Type signalFactor(){
         if(lexer.token==Token.PLUS || lexer.token==Token.MINUS)
             next();
-        factor();
+        return factor();
     }
 
-    private void factor(){
+    private Type factor(){
+        Type t;
         if(lexer.token==Token.LITERALINT || lexer.token==Token.LITERALSTRING ||
             lexer.token==Token.TRUE || lexer.token==Token.FALSE){
+            if(lexer.token==Token.LITERALINT)
+                t = Type.intType;
+            if(lexer.token==Token.LITERALSTRING)
+                t = Type.stringType;
+            else
+                t = Type.booleanType;
             next();
         }
         else if(lexer.token==Token.LEFTPAR){
             next();
-            expr();
+            t = expr();
             if(lexer.token!=Token.RIGHTPAR)
                 this.error("')' was expected");
             next();
         }
         else if(lexer.token==Token.NOT){
             next();
-            factor();
+            t = factor();
+            if(t!=Type.booleanType)
+                this.error("Cant use ! on "+t.getName()+" type.");
         }
         else if(lexer.token==Token.SUPER || lexer.token==Token.SELF){
-            primaryExpr();
+            t = primaryExpr();
         }
         else if(lexer.token==Token.ID){
             if(lexer.getStringValue().equals("In"))
-                readExpr();
+                t = readExpr();
             else{
-                next();
-                if(lexer.token==Token.DOT){
+                Object o = symbolTable.get(lexer.getStringValue());
+                if(o==null)
+                    this.error("The identifier does not exist.");
+                if(o instanceof CianetoClass){
+                    t = new Type(((CianetoClass) o).getName());
                     next();
-                    if(lexer.token==Token.NEW)
+                    if(lexer.token==Token.DOT){
                         next();
-                    else
-                        primaryExpr();
+                        if(lexer.token==Token.NEW)
+                            next();
+                        else
+                            t = primaryExpr();
+                    }
                 }
+                else
+                    t = ((Variable) o).getType();
             }
         }
         else if(lexer.token!=Token.NULL)
             this.error("Expression expected");
-        else
+        else{
+            t = Type.nullType;
             next();
+        }
+        return t;
     }
 
-    private void readExpr(){
+    private Type readExpr(){
+        Type t;
         next();
         if(lexer.token!=Token.DOT)
             this.error("'.' was expected");
         next();
         if ( lexer.token == Token.ID &&
             (lexer.getStringValue().equals("readInt") ||  lexer.getStringValue().equals("readString"))){
+            if(lexer.getStringValue().equals("readInt"))
+                t = Type.intType;
+            else
+                t = Type.stringType;
             next();
         }
         else{
             this.error("'readInt' or 'readString' expected");
         }
+        return t;
     }
 
-    private void primaryExpr(){
+    private Type primaryExpr(){
+        Type t;
+        String methodName;
+        ArrayList<Type> exprList = new ArrayList<>();
         if(lexer.token==Token.SUPER){
             next();
             if(lexer.token!=Token.DOT)
                 this.error("'.' was expected");
             next();
             if(lexer.token==Token.IDCOLON){
+                methodName = lexer.getStringValue();
                 next();
-                expressionList();
+                exprList = expressionList();
             }
             else if(lexer.token!=Token.ID)
                 this.error("Identifer was expected");
-            else
+            else{
+                methodName = lexer.getStringValue();
                 next();
+            }
+            Method m = (Method) symbolTable.getInSuperClass(methodName);
+            if(m==null)
+                this.error("Method "+methodName+" does not exist in super class.");
+            if(exprList.size()!=m.getParamList().getSize())
+                this.error("Method signature is different from super method signature.");
+            int i = 0;
+            while(i<exprList.size()){
+                if(!exprList.get(i).getName().equals(m.getParamList().get(i).getType().getName()))
+                    this.error("Expression type is different from method signature.");
+            }
+            t = m.getReturnType();
         }
         else if(lexer.token==Token.SELF){
+            Method m;
             next();
             if(lexer.token==Token.DOT){
                 next();
                 if(lexer.token==Token.IDCOLON){
+                    methodName = lexer.getStringValue();
                     next();
-                    expressionList();
+                    exprList = expressionList();
+                    Method m = (Method) symbolTable.getInClass(methodName);
                 }
                 else if(lexer.token==Token.ID){
+                    methodName = lexer.getStringValue();
+                    Method m = (Method) symbolTable.getInClass(methodName);
                     next();
                     if(lexer.token==Token.DOT){
+                        Object o = symbolTable.getInClass(methodName);
+                        if(o==null || !(o instanceof Variable))
+                            this.error("Variable "+methodName+" does not exist.");
+                        Variable v = (Variable) o;
                         next();
                         if(lexer.token==Token.IDCOLON){
+                            methodName = lexer.getStringValue();
                             next();
-                            expressionList();
+                            exprList = expressionList();
                         }
                         else if(lexer.token!=Token.ID)
                             this.error("Identifer was expected");
-                        else
+                        else{
+                            methodName = lexer.getStringValue();
                             next();
+                        }
+                        m = null;
+                        CianetoClass class = (CianetoClass) symbolTable.getInGlobal(v.getType().getName());
+                        while(class!=null){
+                            ArrayList<Member> memberList = class.getMemberList();
+                            int i = 0;
+                            while(i < memberList.size()){
+                                if(memberList.get(i) instanceof Method)
+                                    if(memberList.get(i).getName().equals(methodName)){
+                                        m = (Method) memberList.get(i);
+                                        break;
+                                    }
+                                i++;
+                            }
+                            class = class.getSClass()
+                        }
                     }
                 }
             }
+            if(m==null)
+                this.error("Method "+methodName+" does not exist in super class.");
+            if(exprList.size()!=m.getParamList().getSize())
+                this.error("Method signature is different from super method signature.");
+            int i = 0;
+            while(i<exprList.size()){
+                if(!exprList.get(i).getName().equals(m.getParamList().get(i).getType().getName()))
+                    this.error("Expression type is different from method signature.");
+            }
+            t = m.getReturnType();
         }
 
         else{
             if(lexer.token==Token.IDCOLON){
+                methodName = lexer.getStringValue();
                 next();
-                expressionList();
+                exprList = expressionList();
             }
             else if(lexer.token!=Token.ID)
                 this.error("Identifer was expected");
-            else
+            else{
+                methodName = lexer.getStringValue();
                 next();
+            }
+            Method m = (Method) symbolTable.getInSuperClass(methodName);
+            if(m==null)
+                this.error("Method "+methodName+" does not exist in super class.");
+            if(exprList.size()!=m.getParamList().getSize())
+                this.error("Method signature is different from super method signature.");
+            int i = 0;
+            while(i<exprList.size()){
+                if(!exprList.get(i).getName().equals(m.getParamList().get(i).getType().getName()))
+                    this.error("Expression type is different from method signature.");
+            }
+            t = m.getReturnType();
         }
+
+        return t;
     }
 
-    private void expressionList(){
-        expr();
+    private ArrayList<Type> expressionList(){
+        ArrayList<Type> exprList = new ArrayList<>();
+        exprList.add(expr());
         while(lexer.token==Token.COMMA){
             next();
-            expr();
+            exprList.add(expr());
         }
+        return exprList;
     }
 
     private Member fieldDec(Qualifier q) {
@@ -642,7 +810,7 @@ public class Compiler {
 
     }
 
-	private void type() {
+	private Type type() {
         Type t = null;
         if ( lexer.token == Token.INT || lexer.token == Token.BOOLEAN || lexer.token == Token.STRING ) {
             if(lexer.token == Token.BOOLEAN)
@@ -667,7 +835,7 @@ public class Compiler {
     }
 
 
-    private void qualifier() {
+    private Qualifier qualifier() {
         if ( lexer.token == Token.PRIVATE ) {
             next();
             return new Qualifier(false, true, false, false);
