@@ -280,6 +280,7 @@ public class Compiler {
 			error("'{' expected");
 		}
 		next();
+        currentMethodType = type;
 		ArrayList<Statement> s = statementList();
 		if ( lexer.token != Token.RIGHTCURBRACKET ) {
 			error("'}' expected");
@@ -328,41 +329,47 @@ public class Compiler {
 	}
 
 	private Statement statement() {
+        Statement s;
 		boolean checkSemiColon = true;
 		switch ( lexer.token ) {
 		case IF:
-			ifStat();
+			s = ifStat();
 			checkSemiColon = false;
 			break;
 		case WHILE:
-			whileStat();
+			s = whileStat();
 			checkSemiColon = false;
 			break;
 		case RETURN:
-			returnStat();
+			s = returnStat();
 			break;
 		case BREAK:
-			breakStat();
+			s = breakStat();
 			break;
 		case REPEAT:
-			repeatStat();
+			s = repeatStat();
 			break;
 		case VAR:
-			localDec();
+			s = localDec();
 			break;
 		case ASSERT:
-			assertStat();
+			s = assertStat();
 			break;
 		default:
 			if ( lexer.token == Token.ID && lexer.getStringValue().equals("Out") ) {
-				writeStat();
+				s = writeStat();
 			}
 			else {
-				expr();
+				Type t1 = expr();
+                Type t2 = null;
                 if(lexer.token==Token.ASSIGN){
                     next();
-                    expr();
-                }
+                    t2 = expr();
+                    if(!isTypeCompatible(t1, t2))
+                        this.error("The two expressions have uncompatible type.");
+                } else if(t1!=Type.undefinedType)
+                    this.error("The expression must not have a return.");
+                s = new AssignStat(t1, t2)
 			}
 
 		}
@@ -370,65 +377,100 @@ public class Compiler {
 			check(Token.SEMICOLON, "';' expected");
             next();
 		}
+
+        return s;
 	}
 
-	private void localDec() {
+	private LocalVariableList localDec() {
+        LocalVariableList variableList = new LocalVariableList();
 		next();
-		Type t = type();
+		Type t1 = type();
 		check(Token.ID, "A variable name was expected");
+        if(symbolTable.getInLocal(lexer.getStringValue())!=null)
+            this.error("Name already in use.");
+        Variable v = new Variable(lexer.getStringValue(), t);
+        variableList.add(v);
+        symbolTable.putInLocal(v.getName(), v);
         next();
 		while ( lexer.token == Token.COMMA ) {
 			next();
 			check(Token.ID, "A variable name was expected");
+            if(symbolTable.getInLocal(lexer.getStringValue())!=null)
+                this.error("Name already in use.");
+            v = new Variable(lexer.getStringValue(), t);
+            variableList.add(v);
+            symbolTable.putInLocal(v.getName(), v);
 			next();
 		}
 		if ( lexer.token == Token.ASSIGN ) {
 			next();
 			// check if there is just one variable
-			expr();
+			Type t2 = expr();
+            if(!isTypeCompatible(t1, t2))
+                this.error("The two expressions have uncompatible type.");
 		}
+
+        return variableList;
 
 	}
 
-	private void repeatStat() {
+	private RepeatStat repeatStat() {
 		next();
+        RepeatStat r = new RepeatStat();
+        isInsideLoop = true;
 		while ( lexer.token != Token.UNTIL && lexer.token != Token.RIGHTCURBRACKET && lexer.token != Token.END ) {
-			statement();
+			r.add(statement());
 		}
+        isInsideLoop = false;
 		check(Token.UNTIL, "'until' was expected");
         next();
-        expr();
+        Type t = expr();
+        if(t!=Type.booleanType)
+            this.error("Condition must be of type boolean.");
+        return r;
 	}
 
-	private void breakStat() {
+	private BreakStat breakStat() {
 		next();
-
+        if(!isInsideLoop)
+            this.error("The break statement must be inside a loop.");
+        return new BreakStat();
 	}
 
 	private void returnStat() {
 		next();
-		expr();
+		Type t1 = expr();
+        if(!isTypeCompatible(t1, currentMethodType))
+            this.error("The two expressions have uncompatible type.");
+        return new ReturnStat();
 	}
 
-	private void whileStat() {
+	private WhileStat whileStat() {
+        WhileStat w = new WhileStat();
 		next();
-		expr();
+        if(expr()!=Type.booleanType)
+            this.error("Condition must be of type boolean.");
 		check(Token.LEFTCURBRACKET, "'{' expected after the 'while' expression");
 		next();
+        isInsideLoop = true;
 		while ( lexer.token != Token.RIGHTCURBRACKET && lexer.token != Token.END ) {
-			statement();
+			w.add(statement());
 		}
+        isInsideLoop = false;
 		check(Token.RIGHTCURBRACKET, "'}' was expected");
         next();
+        return w;
 	}
 
 	private void ifStat() {
+        IfStat s = new IfStat();
 		next();
-		expr();
+        if(expr()!=Type.booleanType)
+            this.error("Condition must be of type boolean.");
 		check(Token.LEFTCURBRACKET, "'{' expected after the 'if' expression");
 		next();
 		while ( lexer.token != Token.RIGHTCURBRACKET && lexer.token != Token.END && lexer.token != Token.ELSE ) {
-			statement();
+			s.add(statement());
 		}
 		check(Token.RIGHTCURBRACKET, "'}' was expected");
         next();
@@ -437,24 +479,29 @@ public class Compiler {
 			check(Token.LEFTCURBRACKET, "'{' expected after 'else'");
 			next();
 			while ( lexer.token != Token.RIGHTCURBRACKET ) {
-				statement();
+				s.add(statement());
 			}
 			check(Token.RIGHTCURBRACKET, "'}' was expected");
             next();
 		}
+
+        return s;
 	}
 
 	/**
 
 	 */
-	private void writeStat() {
+	private WriteStat writeStat() {
 		next();
 		check(Token.DOT, "a '.' was expected after 'Out'");
 		next();
 		check(Token.IDCOLON, "'print:' or 'println:' was expected after 'Out.'");
 		String printName = lexer.getStringValue();
         next();
-		expr();
+		Type t = expr();
+        if(t!=Type.intType && t!=Type.stringType)
+            this.error("Expression type must be int or string.");
+        return new WriteStat(t);
 	}
 
 	private Type expr() {
@@ -872,11 +919,12 @@ public class Compiler {
 	 * uncomment it
 	 * implement the methods it calls
 	 */
-	public Statement assertStat() {
+	public AssertStat assertStat() {
 
 		lexer.nextToken();
 		int lineNumber = lexer.getLineNumber();
-		expr();
+		if(expr()!=Type.booleanType)
+            this.error("Expression must be of type boolean.");
 		if ( lexer.token != Token.COMMA ) {
 			this.error("',' expected after the expression of the 'assert' statement");
 		}
@@ -889,7 +937,7 @@ public class Compiler {
 		/*if ( lexer.token == Token.SEMICOLON )
 			lexer.nextToken();*/
 
-		return null;
+		return new AssertStat(message);
 	}
 
 
@@ -917,8 +965,39 @@ public class Compiler {
 
 	}
 
+    private boolean isTypeCompatible(Type t1, Type t2){
+        if(t1==Type.undefinedType || t2==Type.undefinedType)
+            return false;
+        if(t1.getName().equals(t2.getName()))
+            return true;
+
+        if(t1!=Type.booleanType && t2!=Type.booleanType && t1!=Type.intType && t2!=Type.intType){
+            if(t1==Type.nullType && t2==Type.nullType)
+                return false;
+            if(t1==Type.nullType || t2==Type.nullType)
+                return true;
+            if(t1==Type.stringType || t2==Type.stringType)
+                return false;
+            CianetoClass class = (CianetoClass) symbolTable.getInGlobal(t1.getName());
+            do{
+                if(class.getName().equals(t2.getName()))
+                    return true;
+                class = class.getSClass();
+            }while(class!=null);
+            class = (CianetoClass) symbolTable.getInGlobal(t2.getName());
+            do{
+                if(class.getName().equals(t1.getName()))
+                    return true;
+                class = class.getSClass();
+            }while(class!=null);
+        }
+        return false;
+    }
+
 	private SymbolTable		symbolTable;
 	private Lexer			lexer;
 	private ErrorSignaller	signalError;
+    private boolean         isInsideLoop;
+    private Type            currentMethodType;
 
 }
