@@ -1,5 +1,7 @@
 package comp;
 
+import java.util.Hashtable;
+
 
 public class SymbolTable {
     public SymbolTable() {

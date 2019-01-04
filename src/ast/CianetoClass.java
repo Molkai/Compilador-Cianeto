@@ -12,7 +12,6 @@ public class CianetoClass extends Type {
         this.memberList = memberList;
     }
 
-    @Override
     public String getCname() {
         return getName();
     }
@@ -25,7 +24,7 @@ public class CianetoClass extends Type {
         return open;
     }
 
-    public Member getMemberList(){
+    public ArrayList<Member> getMemberList(){
         return memberList;
     }
 
@@ -33,6 +32,6 @@ public class CianetoClass extends Type {
     private CianetoClass superClass;
     private ArrayList<Member> memberList;
     private boolean open;
-    // métodos públicos get e set para obter e iniciar as variáveis acima,
-    // entre outros métodos
+    // metodos publicos get e set para obter e iniciar as variaveis acima,
+    // entre outros metodos
 }

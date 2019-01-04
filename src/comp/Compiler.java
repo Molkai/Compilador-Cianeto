@@ -3,11 +3,7 @@ package comp;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import ast.CianetoClass;
-import ast.LiteralInt;
-import ast.MetaobjectAnnotation;
-import ast.Program;
-import ast.Statement;
+import ast.*;
 import lexer.Lexer;
 import lexer.Token;
 
@@ -172,12 +168,12 @@ public class Compiler {
                 ArrayList<Member> auxMemberList = auxSuperClass.getMemberList();
                 for(int i=0; i<auxMemberList.size(); i++){
                     Member member = auxMemberList.get(i);
-                    if(member instanceof Method && member.getQualifier().isPublic() && !member.getQualifier().isFinal()){
-                        symbolTable.putInSuperClass(member.getName(), member);
+                    if(member instanceof Method && ((Method)member).getQualifier().isPublic() && !((Method)member).getQualifier().isFinal()){
+                        symbolTable.putInSuperClass(((Method)member).getName(), member);
                     }
                 }
                 auxSuperClass = auxSuperClass.getSClass();
-            }while(auxSuperClass!=null)
+            }while(auxSuperClass!=null);
             lexer.nextToken();
         }
 
@@ -234,9 +230,10 @@ public class Compiler {
         lexer.nextToken();
         VariableList paramList = new VariableList();
         Type type = Type.undefinedType;
+        String methodName = null;
 		if ( lexer.token == Token.ID ) {
 			// unary method
-            String methodName = lexer.getStringValue();
+            methodName = lexer.getStringValue();
             if(symbolTable.getInClass(methodName)!=null)
                 this.error("Name already in use in this class.");
 			lexer.nextToken();
@@ -244,7 +241,7 @@ public class Compiler {
 		}
 		else if ( lexer.token == Token.IDCOLON ) {
 			// keyword method. It has parameters
-            String methodName = lexer.getStringValue();
+            methodName = lexer.getStringValue();
             if(symbolTable.getInClass(methodName)!=null)
                 this.error("Name already in use in this class.");
             next();
@@ -369,7 +366,7 @@ public class Compiler {
                         this.error("The two expressions have uncompatible type.");
                 } else if(t1!=Type.undefinedType)
                     this.error("The expression must not have a return.");
-                s = new AssignStat(t1, t2)
+                s = new AssignStat(t1, t2);
 			}
 
 		}
@@ -388,7 +385,7 @@ public class Compiler {
 		check(Token.ID, "A variable name was expected");
         if(symbolTable.getInLocal(lexer.getStringValue())!=null)
             this.error("Name already in use.");
-        Variable v = new Variable(lexer.getStringValue(), t);
+        Variable v = new Variable(lexer.getStringValue(), t1);
         variableList.add(v);
         symbolTable.putInLocal(v.getName(), v);
         next();
@@ -397,7 +394,7 @@ public class Compiler {
 			check(Token.ID, "A variable name was expected");
             if(symbolTable.getInLocal(lexer.getStringValue())!=null)
                 this.error("Name already in use.");
-            v = new Variable(lexer.getStringValue(), t);
+            v = new Variable(lexer.getStringValue(), t1);
             variableList.add(v);
             symbolTable.putInLocal(v.getName(), v);
 			next();
@@ -437,7 +434,7 @@ public class Compiler {
         return new BreakStat();
 	}
 
-	private void returnStat() {
+	private ReturnStat returnStat() {
 		next();
 		Type t1 = expr();
         if(!isTypeCompatible(t1, currentMethodType))
@@ -462,7 +459,7 @@ public class Compiler {
         return w;
 	}
 
-	private void ifStat() {
+	private IfStat ifStat() {
         IfStat s = new IfStat();
 		next();
         if(expr()!=Type.booleanType)
@@ -508,7 +505,7 @@ public class Compiler {
         Type t1 = simpleExpr();
         if(lexer.token==Token.EQ || lexer.token==Token.GT || lexer.token==Token.GE ||
             lexer.token==Token.LT || lexer.token==Token.LE || lexer.token==Token.NEQ){
-            Token op = lexer.token
+            Token op = lexer.token;
             next();
             Type t2 = simpleExpr();
             if(t1==Type.undefinedType || t2==Type.undefinedType)
@@ -534,18 +531,18 @@ public class Compiler {
                 else{
                     if(t2==Type.nullType)
                         return Type.booleanType;
-                    CianetoClass class = (CianetoClass) symbolTable.getInGlobal(t1.getName());
+                    CianetoClass c = (CianetoClass) symbolTable.getInGlobal(t1.getName());
                     do{
-                        if(class.getName().equals(t2.getName()))
+                        if(c.getName().equals(t2.getName()))
                             return Type.booleanType;
-                        class = class.getSClass();
-                    }while(class!=null);
-                    class = (CianetoClass) symbolTable.getInGlobal(t2.getName());
+                        c = c.getSClass();
+                    }while(c!=null);
+                    c = (CianetoClass) symbolTable.getInGlobal(t2.getName());
                     do{
-                        if(class.getName().equals(t1.getName()))
+                        if(c.getName().equals(t1.getName()))
                             return Type.booleanType;
-                        class = class.getSClass();
-                    }while(class!=null);
+                        c = c.getSClass();
+                    }while(c!=null);
                     this.error("Cant compare "+t1.getName()+" and "+t2.getName()+" types.");
                 }
             }
@@ -614,7 +611,7 @@ public class Compiler {
     }
 
     private Type factor(){
-        Type t;
+        Type t = null;
         if(lexer.token==Token.LITERALINT || lexer.token==Token.LITERALSTRING ||
             lexer.token==Token.TRUE || lexer.token==Token.FALSE){
             if(lexer.token==Token.LITERALINT)
@@ -673,7 +670,7 @@ public class Compiler {
     }
 
     private Type readExpr(){
-        Type t;
+        Type t = null;
         next();
         if(lexer.token!=Token.DOT)
             this.error("'.' was expected");
@@ -694,7 +691,7 @@ public class Compiler {
 
     private Type primaryExpr(){
         Type t;
-        String methodName;
+        String methodName = null;
         ArrayList<Type> exprList = new ArrayList<>();
         if(lexer.token==Token.SUPER){
             next();
@@ -725,7 +722,7 @@ public class Compiler {
             t = m.getReturnType();
         }
         else if(lexer.token==Token.SELF){
-            Method m;
+            Method m = null;
             next();
             if(lexer.token==Token.DOT){
                 next();
@@ -733,11 +730,11 @@ public class Compiler {
                     methodName = lexer.getStringValue();
                     next();
                     exprList = expressionList();
-                    Method m = (Method) symbolTable.getInClass(methodName);
+                    m = (Method) symbolTable.getInClass(methodName);
                 }
                 else if(lexer.token==Token.ID){
                     methodName = lexer.getStringValue();
-                    Method m = (Method) symbolTable.getInClass(methodName);
+                    m = (Method) symbolTable.getInClass(methodName);
                     next();
                     if(lexer.token==Token.DOT){
                         Object o = symbolTable.getInClass(methodName);
@@ -757,19 +754,19 @@ public class Compiler {
                             next();
                         }
                         m = null;
-                        CianetoClass class = (CianetoClass) symbolTable.getInGlobal(v.getType().getName());
-                        while(class!=null){
-                            ArrayList<Member> memberList = class.getMemberList();
+                        CianetoClass c = (CianetoClass) symbolTable.getInGlobal(v.getType().getName());
+                        while(c!=null){
+                            ArrayList<Member> memberList = c.getMemberList();
                             int i = 0;
                             while(i < memberList.size()){
                                 if(memberList.get(i) instanceof Method)
-                                    if(memberList.get(i).getName().equals(methodName)){
+                                    if(((Method) memberList.get(i)).getName().equals(methodName)){
                                         m = (Method) memberList.get(i);
                                         break;
                                     }
                                 i++;
                             }
-                            class = class.getSClass()
+                            c = c.getSClass();
                         }
                     }
                 }
@@ -978,18 +975,18 @@ public class Compiler {
                 return true;
             if(t1==Type.stringType || t2==Type.stringType)
                 return false;
-            CianetoClass class = (CianetoClass) symbolTable.getInGlobal(t1.getName());
+            CianetoClass c = (CianetoClass) symbolTable.getInGlobal(t1.getName());
             do{
-                if(class.getName().equals(t2.getName()))
+                if(c.getName().equals(t2.getName()))
                     return true;
-                class = class.getSClass();
-            }while(class!=null);
-            class = (CianetoClass) symbolTable.getInGlobal(t2.getName());
+                c = c.getSClass();
+            }while(c!=null);
+            c = (CianetoClass) symbolTable.getInGlobal(t2.getName());
             do{
-                if(class.getName().equals(t1.getName()))
+                if(c.getName().equals(t1.getName()))
                     return true;
-                class = class.getSClass();
-            }while(class!=null);
+                c = c.getSClass();
+            }while(c!=null);
         }
         return false;
     }

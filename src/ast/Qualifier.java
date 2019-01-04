@@ -1,6 +1,6 @@
 package ast;
 
-abstract public class Qualifier {
+public class Qualifier {
 
     public Qualifier( boolean pub, boolean prv, boolean fin, boolean over ) {
         this.pub = pub;
