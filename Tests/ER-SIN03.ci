@@ -2,7 +2,7 @@
 Isabela Salmeron Boschi
 isabelasalmeron@msn.com
 */
-@cep(6, "Falta a vari�vel", "Identifier expected", "comp.Compiler.localDec()")
+@cep(6, "Falta a variável", "Identifier expected", "comp.Compiler.localDec()")
 
 class Program
   

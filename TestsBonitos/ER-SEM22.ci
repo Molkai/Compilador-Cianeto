@@ -1,0 +1,12 @@
+@cep(7, "Numero no lugar de nome de variavel", 
+  "Identifier expected", "comp.Compiler.localDec()")
+  
+
+class Program 
+  
+    func run {
+       var Int 0;    //#
+    }
+
+end
+

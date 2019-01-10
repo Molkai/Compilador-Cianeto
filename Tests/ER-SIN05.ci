@@ -2,14 +2,16 @@
 Isabela Salmeron Boschi
 isabelasalmeron@msn.com
 */
-@cep(8, "express�o ausente depois da ','", "Expression expected", "comp.Compiler.factor()")
+@cep(8, "expressão ausente depois da ','", "Expression expected", "comp.Compiler.factor()")
       
 class Program
+
+    func read: Int a, Int b, Int c { } 
 
     func run() {
       
         var Int i, j;
-        read(i, j, );
+        read: i, j, ;
        
     }
 

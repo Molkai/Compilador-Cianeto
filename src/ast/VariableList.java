@@ -3,6 +3,10 @@ import java.util.*;
 
 public class VariableList extends Member {
 
+    public VariableList(){
+        variableList = new ArrayList<>();
+    }
+
     public void add(Variable v){
         variableList.add(v);
     }

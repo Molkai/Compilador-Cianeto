@@ -197,9 +197,13 @@ public class Compiler {
         while ( true ) {
             Qualifier q = qualifier();
             if ( lexer.token == Token.VAR ) {
+                if(q==null)
+                    q = new Qualifier(false, true, false, false);
                 memberList.add(fieldDec(q));
             }
             else if ( lexer.token == Token.FUNC ) {
+                if(q==null)
+                    q = new Qualifier(true, false, false, false);
                 memberList.add(methodDec(q, isOpen));
             }
             else {
@@ -278,7 +282,10 @@ public class Compiler {
 		}
 		next();
         currentMethodType = type;
+        hasReturn = false;
 		ArrayList<Statement> s = statementList();
+        if(currentMethodType!=Type.undefinedType && !hasReturn)
+            this.error("Method does not have a return.");
 		if ( lexer.token != Token.RIGHTCURBRACKET ) {
 			error("'}' expected");
 		}
@@ -439,6 +446,7 @@ public class Compiler {
 		Type t1 = expr();
         if(!isTypeCompatible(t1, currentMethodType))
             this.error("The two expressions have uncompatible type.");
+        hasReturn = true;
         return new ReturnStat();
 	}
 
@@ -616,7 +624,7 @@ public class Compiler {
             lexer.token==Token.TRUE || lexer.token==Token.FALSE){
             if(lexer.token==Token.LITERALINT)
                 t = Type.intType;
-            if(lexer.token==Token.LITERALSTRING)
+            else if(lexer.token==Token.LITERALSTRING)
                 t = Type.stringType;
             else
                 t = Type.booleanType;
@@ -644,20 +652,25 @@ public class Compiler {
             else{
                 Object o = symbolTable.get(lexer.getStringValue());
                 if(o==null)
-                    this.error("The identifier does not exist.");
+                    this.error("The identifier "+lexer.getStringValue()+" does not exist.");
                 if(o instanceof CianetoClass){
                     t = new Type(((CianetoClass) o).getName());
                     next();
+                    if(lexer.token!=Token.DOT)
+                        this.error("'.' expected");
+                    next();
+                    if(lexer.token!=Token.NEW)
+                        this.error("'new' expected");
+                    next();
+                }
+                else{
+                    t = ((Variable) o).getType();
+                    next();
                     if(lexer.token==Token.DOT){
                         next();
-                        if(lexer.token==Token.NEW)
-                            next();
-                        else
-                            t = primaryExpr();
+                        t = primaryExpr();
                     }
                 }
-                else
-                    t = ((Variable) o).getType();
             }
         }
         else if(lexer.token!=Token.NULL)
@@ -722,7 +735,9 @@ public class Compiler {
             t = m.getReturnType();
         }
         else if(lexer.token==Token.SELF){
+            boolean isMethod = false;
             Method m = null;
+            Variable v = null;
             next();
             if(lexer.token==Token.DOT){
                 next();
@@ -731,56 +746,75 @@ public class Compiler {
                     next();
                     exprList = expressionList();
                     m = (Method) symbolTable.getInClass(methodName);
+                    isMethod = true;
                 }
                 else if(lexer.token==Token.ID){
-                    methodName = lexer.getStringValue();
-                    m = (Method) symbolTable.getInClass(methodName);
+                    String idName = lexer.getStringValue();
+                    //methodName = lexer.getStringValue();
+                    Object o = symbolTable.getInClass(idName);
                     next();
-                    if(lexer.token==Token.DOT){
-                        Object o = symbolTable.getInClass(methodName);
-                        if(o==null || !(o instanceof Variable))
-                            this.error("Variable "+methodName+" does not exist.");
-                        Variable v = (Variable) o;
-                        next();
-                        if(lexer.token==Token.IDCOLON){
-                            methodName = lexer.getStringValue();
+                    if(o==null)
+                        this.error("Id "+idName+" does not exist in class.");
+                    if(o instanceof Method){
+                        isMethod = true;
+                        m = (Method) o;
+                    }
+                    else if(o instanceof Variable){
+                        v = (Variable) o;
+                        if(lexer.token==Token.DOT){
+                            isMethod = true;
+                            if(v.getType()==Type.intType || v.getType()==Type.booleanType
+                                || v.getType()==Type.stringType)
+                                this.error("Nonono");
                             next();
-                            exprList = expressionList();
-                        }
-                        else if(lexer.token!=Token.ID)
-                            this.error("Identifer was expected");
-                        else{
-                            methodName = lexer.getStringValue();
-                            next();
-                        }
-                        m = null;
-                        CianetoClass c = (CianetoClass) symbolTable.getInGlobal(v.getType().getName());
-                        while(c!=null){
-                            ArrayList<Member> memberList = c.getMemberList();
-                            int i = 0;
-                            while(i < memberList.size()){
-                                if(memberList.get(i) instanceof Method)
-                                    if(((Method) memberList.get(i)).getName().equals(methodName)){
-                                        m = (Method) memberList.get(i);
-                                        break;
-                                    }
-                                i++;
+                            if(lexer.token==Token.IDCOLON){
+                                methodName = lexer.getStringValue();
+                                next();
+                                exprList = expressionList();
                             }
-                            c = c.getSClass();
+                            else if(lexer.token!=Token.ID)
+                                this.error("Identifer was expected");
+                            else{
+                                methodName = lexer.getStringValue();
+                                next();
+                            }
+                            m = null;
+                            CianetoClass c = (CianetoClass) symbolTable.getInGlobal(v.getType().getName());
+                            while(c!=null){
+                                ArrayList<Member> memberList = c.getMemberList();
+                                int i = 0;
+                                while(i < memberList.size()){
+                                    if(memberList.get(i) instanceof Method)
+                                        if(((Method) memberList.get(i)).getName().equals(methodName)){
+                                            m = (Method) memberList.get(i);
+                                            break;
+                                        }
+                                    i++;
+                                }
+                                if(i<memberList.size())
+                                    break;
+                                c = c.getSClass();
+                            }
                         }
                     }
+                    else
+                        this.error("Something.");
                 }
             }
-            if(m==null)
-                this.error("Method "+methodName+" does not exist in super class.");
-            if(exprList.size()!=m.getParamList().getSize())
-                this.error("Method signature is different from super method signature.");
-            int i = 0;
-            while(i<exprList.size()){
-                if(!exprList.get(i).getName().equals(m.getParamList().get(i).getType().getName()))
-                    this.error("Expression type is different from method signature.");
+            if(isMethod){
+                if(m==null)
+                    this.error("Method "+methodName+" does not exist in super class.");
+                if(exprList.size()!=m.getParamList().getSize())
+                    this.error("Method signature is different from super method signature.");
+                int i = 0;
+                while(i<exprList.size()){
+                    if(!exprList.get(i).getName().equals(m.getParamList().get(i).getType().getName()))
+                        this.error("Expression type is different from method signature.");
+                }
+                t = m.getReturnType();
             }
-            t = m.getReturnType();
+            else
+                t = v.getType();
         }
 
         else{
@@ -795,9 +829,9 @@ public class Compiler {
                 methodName = lexer.getStringValue();
                 next();
             }
-            Method m = (Method) symbolTable.getInSuperClass(methodName);
+            Method m = (Method) symbolTable.getInClass(methodName);
             if(m==null)
-                this.error("Method "+methodName+" does not exist in super class.");
+                this.error("Method "+methodName+" does not exist in any class.");
             if(exprList.size()!=m.getParamList().getSize())
                 this.error("Method signature is different from super method signature.");
             int i = 0;
@@ -996,5 +1030,6 @@ public class Compiler {
 	private ErrorSignaller	signalError;
     private boolean         isInsideLoop;
     private Type            currentMethodType;
+    private boolean         hasReturn;
 
 }

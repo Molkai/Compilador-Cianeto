@@ -3,6 +3,10 @@ import java.util.*;
 
 public class LocalVariableList extends Statement {
 
+    public LocalVariableList(){
+        variableList = new ArrayList<>();
+    }
+
     public void add(Variable v){
         variableList.add(v);
     }
