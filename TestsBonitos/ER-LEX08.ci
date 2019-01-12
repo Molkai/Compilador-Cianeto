@@ -1,7 +1,7 @@
-@cep(5, "Número fora dos limites permitidos", "literal int out of limits", "lexer.Lexer.nextToken()")
-      
-class Program 
-  
+@cep(5, "Numero fora dos limites permitidos", "literal int out of limits", "lexer.Lexer.nextToken()")
+
+class Program
+
     func run {
        Out.println: 4000000000000000000;   //#
     }

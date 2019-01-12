@@ -364,9 +364,12 @@ public class Compiler {
 				s = writeStat();
 			}
 			else {
+                isVariable= false;
 				Type t1 = expr();
                 Type t2 = null;
                 if(lexer.token==Token.ASSIGN){
+                    if(!isVariable)
+                        this.error("Expected variable on left-hand side of assignment.");
                     next();
                     t2 = expr();
                     if(!isTypeCompatible(t1, t2))
@@ -670,6 +673,8 @@ public class Compiler {
                         next();
                         t = primaryExpr();
                     }
+                    else
+                        isVariable = true;
                 }
             }
         }
@@ -1031,5 +1036,6 @@ public class Compiler {
     private boolean         isInsideLoop;
     private Type            currentMethodType;
     private boolean         hasReturn;
+    private boolean         isVariable;
 
 }

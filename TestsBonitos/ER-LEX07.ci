@@ -1,13 +1,13 @@
-@cep(4, "Comentário iniciado na linha 5 não foi fechado", 
+@cep(4, "Comentario iniciado na linha 5 nao foi fechado",
     "Comment started in line 5 was not closed", "lexer.Lexer.nextToken()")
 
 
 /*
   e indicar o numero da linha onde o comentario comecou:
   Erro: comentario iniciado na linha 6 nao foi fechado.
-      
-class A 
-  
+
+class A
+
     func m {
 
        var Int i;
@@ -20,8 +20,8 @@ class A
 
 end
 
-class Program 
-  
+class Program
+
     func run {
        var A a;
        a = A.new();
