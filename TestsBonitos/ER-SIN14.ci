@@ -14,7 +14,7 @@ end
 
 
 /* Ok, permite comentarios */
-
+      
 Isto deveria ser um comentario, mas  ...
-
+      
 // Nao deve existir nada depois do }, exceto comentarios
