@@ -1,14 +1,14 @@
-/* 
+/*
 Gustavo Eda
 edapd12@gmail.com
 */
 
-@cep(4, "classe Program ausente", 
+@cep(4, "classe Program ausente",
     "Source code without a class 'Program'",
     "comp.Compiler.program()")
 
-class A {
-    
+class A
+
     func m {
     }
 

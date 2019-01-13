@@ -75,3 +75,6 @@ ok          ER-SEM61.ci
 ok          ER-SEM62.ci
 ok          ER-SEM68.ci
 ok          ER-SEM70.ci
+ok          ER-SEM77.ci
+ok          ER-SEM78.ci         Sinalizado na linha errada (acho q o caso ta errado)
+ok          ER-SEM79.ci         Sinalizado na linha errada (acho q o caso ta errado)
