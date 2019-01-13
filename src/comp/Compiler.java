@@ -443,12 +443,18 @@ public class Compiler {
 
 	private RepeatStat repeatStat() {
 		next();
+        if(lexer.token!=Token.LEFTCURBRACKET)
+            this.error("{ expected.");
+        next();
         RepeatStat r = new RepeatStat();
         quantLoops++;
 		while ( lexer.token != Token.UNTIL && lexer.token != Token.RIGHTCURBRACKET && lexer.token != Token.END ) {
 			r.add(statement());
 		}
         quantLoops--;
+        if(lexer.token!=Token.RIGHTCURBRACKET)
+            this.error("} expected.");
+        next();
 		check(Token.UNTIL, "'until' was expected");
         next();
         Type t = expr();

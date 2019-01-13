@@ -1,19 +1,19 @@
-/* 
+/*
 William A Alves
 willianadrianoalves@hotmail.com
 */
 
 @cep(5, "necessario o uso do 'self.' antes de 'numero', devido o escopo", "")
-  
-class Milhar { 
+
+class Milhar
     var Int numero;
     func getUser: Int n -> Int {
         numero = n*100;
 
-        if self.numero < 1000 { 
+        if self.numero < 1000 {
             self.numero = 1000;
         }
-        if self.numero > 9999 { 
+        if self.numero > 9999 {
             self.numero = 9999;
         }
 
@@ -21,11 +21,11 @@ class Milhar {
     }
 end
 
-class Program {
-    func run { 
-        var Milhar numero; 
+class Program
+    func run {
+        var Milhar numero;
         numero = Milhar.new;
         numero.getUser: In.readInt;
-        Out.println: numero;        
-    } 
+        Out.println: numero;
+    }
 end
