@@ -11,15 +11,14 @@
         FieldDec ::= “var” Type IdList [ “;” ]
 */
 
-class Program {
+class Program
 
     var Int i
     var Int j;
 
-    j = 2;
-    i = 1 + j;
-
     func run {
-        Out.println : i ;
+        j = 2;
+        i = 1 + j;
+        Out.println: i ;
     }
-}
+end

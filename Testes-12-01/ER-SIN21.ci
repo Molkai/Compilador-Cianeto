@@ -1,5 +1,5 @@
-@cep(8, "Falta ';' após a última atribuição")
-      
+@cep(8, "Falta ';' após a última atribuição", "Missing ';'")
+
 class Program
     func run {
 

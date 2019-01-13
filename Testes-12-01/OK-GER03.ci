@@ -7,16 +7,16 @@
 
 /*
   @filename   ok-ger03.kra
-  
+
   @comment    Este programa testa se o codigo para os operadores logicos
       &&    ||   !
   sao gerados corretamente.
   */
 
 class A
-   
-   public void m() {
-    
+
+   public func m {
+
       Out.print:  6 ;
       if (true && true) {
          Out.print:  1 ;
@@ -51,16 +51,16 @@ class A
       if (true || (true && false)) {
          Out.print:  6 ;
       }
-   }   
+   }
 
 end
 
 
 class Program
-   
+
    public func run {
       var A a;
-      
+
       Out.println: "";
       Out.println: "Ok-ger03";
       Out.println: "The output should be :";

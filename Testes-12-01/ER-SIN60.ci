@@ -1,10 +1,10 @@
-/* 
+/*
 Luciane Lopes
 luciane.silva@msn.com
 */
 
-@cep(11, "'(' deve vir depois de 'until'", 
-  "'(' expected after 'until'", 
+@cep(11, "'(' deve vir depois de 'until'",
+  "'(' expected after 'until'",
   "comp.Compiler.repeatStat()")
 
 class Program
@@ -14,7 +14,7 @@ class Program
         i = 0;
         repeat
             i = i + 1;
-        until i < 10);  
+        until i < 10);
     }
 
 end

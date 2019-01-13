@@ -1,4 +1,4 @@
-/* 
+/*
 Lucas Rigo Yoshimura
 lucasrigoyoshimura@gmail.com
 */
@@ -6,17 +6,17 @@ lucasrigoyoshimura@gmail.com
 @cep(5, "';' apos assinatura de metodo",
    "'{' expected", "comp.Compiler.methodDec()")
 
-class A 
-  
-    func get-> Int ; {  
+class A
+
+    func get-> Int ; {
         return 0;
     }
 
 end
 
-class Program 
-  
-    func run() {
+class Program
+
+    func run {
         var A a;
 
         a = A.new;

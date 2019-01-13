@@ -7,13 +7,13 @@
 
 /*
   @filename   ok-ger02.kra
-      
+
   @comment    Testa se o codigo para os operadores aritmeticos sao
   gerados corretamente.
   */
 
 class A
-   
+
    public func m {
       Out.print:  6 ;
       Out.print:  1 ;
@@ -22,22 +22,22 @@ class A
       Out.print:  (6 - 3) + 1 ;
       Out.print:  10 / 2 ;
       Out.print:  2 * 3 ;
-   }   
+   }
 
 end
 
 
 class Program
-   
+
    public func run {
       var A a;
-      
+
       Out.println: "";
       Out.println: "Ok-ger02";
       Out.println: "The output should be :";
       Out.println: "6 1 2 3 4 5 6" ;
       a = A.new;
-      a.m();
-   }   
+      a.m;
+   }
 
 end

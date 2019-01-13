@@ -176,7 +176,6 @@ public class Compiler {
             }while(auxSuperClass!=null);
             lexer.nextToken();
         }
-
         ArrayList<Member> m = memberList(isOpen);
         if ( lexer.token != Token.END)
             error("'end' expected");
@@ -572,7 +571,7 @@ public class Compiler {
             isConcat = true;
             next();
             Type t2 = sumSubExpr();
-            if((t1!=Type.stringType || t1!=Type.intType) && (t2!=Type.stringType || t2!=Type.intType))
+            if(!(t1==Type.stringType || t1==Type.intType) && (t2==Type.stringType || t2==Type.intType))
                 this.error("Cant concat "+t1.getName()+" and "+t2.getName()+" types.");
         }
         if(isConcat)
@@ -632,6 +631,7 @@ public class Compiler {
 
     private Type factor(){
         Type t = null;
+        //System.out.println(lexer.token.toString());
         if(lexer.token==Token.LITERALINT || lexer.token==Token.LITERALSTRING ||
             lexer.token==Token.TRUE || lexer.token==Token.FALSE){
             if(lexer.token==Token.LITERALINT)

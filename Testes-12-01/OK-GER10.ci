@@ -57,23 +57,23 @@ class C extends B
     }
 
     func m4:Int n {
-        super.m3:3;
+        self.m3:3;
         Out.println:"4 " ++ n;
     }
 
 end
 
 class Program
-   
+
    func run {
       var C c;
-      
+
       Out.println:"";
       Out.println:"Ok-ger10";
       Out.println:"The output should be: ";
       Out.println:"1 1 2 2 3 3 4 4";
       c = C.new;
       c.m4:4;
-   }   
+   }
 
 end
