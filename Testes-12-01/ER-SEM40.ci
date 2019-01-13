@@ -8,10 +8,10 @@ evelincontatos@gmail.com
       "comp.Compiler.factor()")
 
 
-open 
+open
 class A
 
-    private Int n;
+    private var Int n;
 
     func set: Int n {
         self.n = n;
@@ -25,10 +25,10 @@ class A
 end
 
 
-open 
+open
 class B extends A
 
-    func set: Int pn {
+    override func set: Int pn {
         Out.println: pn;
         super.set: pn;
     }

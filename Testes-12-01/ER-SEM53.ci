@@ -1,6 +1,6 @@
-@cep(9, "An overridden method should be preceded by 'override'")
+@cep(9, "An overridden method should be preceded by 'override'", "")
 
-open 
+open
 class A
     public func nothing {
     }

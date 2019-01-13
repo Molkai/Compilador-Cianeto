@@ -1,5 +1,5 @@
-/* 
-Giovana Vieira de Morais 
+/*
+Giovana Vieira de Morais
 giovana.vmorais@gmail.com
 */
 
@@ -17,11 +17,11 @@ class A
 	}
 end
 
-class Program {
+class Program
 	func run {
 	    var A a;
 
 		a = A.new;
 		a.p;
 	}
-}
+end
