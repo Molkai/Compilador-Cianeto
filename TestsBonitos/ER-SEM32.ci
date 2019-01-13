@@ -1,26 +1,26 @@
-/* 
+/*
     Caroline Aparecida
     hicaarol@gmail.com
 */
 
-@cep(11, "Método público e privado com mesmos nomes",  
-  "Method 'm' is being redeclared", 
+@cep(11, "Metodo publico e privado com mesmos nomes",
+  "Method 'm' is being redeclared",
   "comp.Compiler.methodDec()")
-  
 
-class A 
-  
+
+class A
+
     private func m {
-    
+
     }
-  
-    func m {  
-    
+
+    func m {
+
     }
 
 end
 
-class Program 
+class Program
 
     func run {
         var A a;
