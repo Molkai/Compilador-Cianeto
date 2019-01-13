@@ -6,10 +6,10 @@ ok			ER-SIN15.ci
 ok			ER-SIN16.ci
 ok			ER-SIN17.ci
 ok			ER-SIN18.ci
-			ER-SIN19.ci 		--É necessario pegar o retorno de In. em uma variavel?
+ok			ER-SIN19.ci
 ok			ER-SIN20.ci
 ok			ER-SIN21.ci
-			ER-SIN22.ci 		--É necessario pegar o retorno de In. em uma variavel?
+ok			ER-SIN22.ci
 ok			ER-SIN23.ci
 ok			ER-SIN24.ci
 ok			ER-SIN25.ci
@@ -29,7 +29,7 @@ ok			ER-SIN38.ci
 ok			ER-SIN39.ci
 ok			ER-SIN40.ci
 ok			ER-SIN41.ci
-			ER-SIN43.ci 		--Não consegue achar nenhum caminho que vá por ident, erro aleatorio
+ok			ER-SIN43.ci
 ok			ER-SIN44.ci
 ok			ER-SIN57.ci
 			ER-SIN58.ci 		--Classe estanciar ela mesma pode?
@@ -68,7 +68,7 @@ ok			OK-LEX02.ci
 ok			OK-LEX03.ci
 ok			OK-LEX04.ci
 ok			OK-LEX05.ci
-			OK-LEX06.ci          --Func run vazia pode?
+ok			OK-LEX06.ci
 ok			OK-LEX08.ci
 ok			OK-LEX10.ci
 ok			ok-math.ci
@@ -89,7 +89,7 @@ ok			OK-SEM14.ci
 ok			ok-sem16.ci
 ok			ok-sem17.ci
 ok			OK-SEM18.ci
-			OK-SIN02.ci          --while vazio pode?
+ok			OK-SIN02.ci
 ok			OK-SIN03.ci
 ok			OK-SIN04.ci
 ok			OK-SIN08.ci

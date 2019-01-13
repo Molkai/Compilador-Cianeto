@@ -31,7 +31,7 @@ class B extends A
         i = In.readInt;
         self.k = In.readInt;
         super.set: 0;
-        Out.println: super get ++ self.get ++ self.k ++ i;
+        Out.println: super.get ++ self.get ++ self.k ++ i;
     }
 
     public print {

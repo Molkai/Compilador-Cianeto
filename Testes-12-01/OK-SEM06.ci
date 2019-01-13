@@ -7,34 +7,34 @@
   nome.
   */
 
-class A 
-   
-   Int n;
-   
-   func set: Int pn;
+class A
+
+   var Int n;
+
+   func set: Int pn{
       var Int n;
-      
+
       self.n = pn;
-   }  
-   
+   }
+
    func put: Int n, String set -> Int {
       var Boolean put;
-      
+
       self.n = n;
       return n;
-   }   
+   }
 
 end
 
 
-class Program 
-   
+class Program
+
    func run {
       var A a;
-      
+
       a = A.new;
       a.set: 0;
-   }   
+   }
 
 end
 
