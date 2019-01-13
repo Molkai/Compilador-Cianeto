@@ -1,15 +1,15 @@
 Testado		Caso Teste			Comentarios
 
-ok 			ER-SIN13.ci
+l 			ER-SIN13.ci
 ok			ER-SIN14.ci
 ok			ER-SIN15.ci
 ok			ER-SIN16.ci
-ok			ER-SIN17.ci
-ok			ER-SIN18.ci
-ok			ER-SIN19.ci
-ok			ER-SIN20.ci
-ok			ER-SIN21.ci
-ok			ER-SIN22.ci
+l			ER-SIN17.ci
+l			ER-SIN18.ci
+l			ER-SIN19.ci
+l			ER-SIN20.ci
+l			ER-SIN21.ci
+l			ER-SIN22.ci
 ok			ER-SIN23.ci
 ok			ER-SIN24.ci
 ok			ER-SIN25.ci
@@ -28,8 +28,8 @@ ok			ER-SIN37.ci
 ok			ER-SIN38.ci
 ok			ER-SIN39.ci
 ok			ER-SIN40.ci
-ok			ER-SIN41.ci
-ok			ER-SIN43.ci
+l			ER-SIN41.ci
+l			ER-SIN43.ci
 ok			ER-SIN44.ci
 ok			ER-SIN57.ci
 			ER-SIN58.ci 		--Classe estanciar ela mesma pode?
@@ -38,9 +38,9 @@ ok			ER-SIN60.ci
 ok			ER-SIN61.ci
 ok			ER-SIN62.ci
 ok			ER-SIN63.ci
-ok			ER-SIN-EXTRA01.ci
+l			ER-SIN-EXTRA01.ci
 ok			ER-SIN-EXTRA02.ci
-ok			ER-SIN-EXTRA.ci
+l			ER-SIN-EXTRA.ci
 			ok-calc.ci           --Problema para analisar expressoes grandes
 ok			OK-CHK07.ci
 			ok-fact.ci           --Classe estanciar ela mesma pode?
@@ -61,7 +61,7 @@ ok			OK-GER12.ci
 			OK-GER13.ci          --Classe estanciar ela mesma pode?
 ok			OK-GER14.ci
 ok			OK-GER15.ci
-			OK-GER16.ci          --Problema com self e metodos de superclasses
+ok			OK-GER16.ci
 ok			OK-GER21.ci
 ok			OK-GER22.ci
 ok			OK-LEX02.ci
@@ -94,7 +94,7 @@ ok			OK-SIN03.ci
 ok			OK-SIN04.ci
 ok			OK-SIN08.ci
 ok			OK-SIN09.ci
-			OK-SIN10.ci          --Problema com self e metodos de superclasses
+ok			OK-SIN10.ci
 ok			OK-SIN11.ci
 ok			OK-SIN12.ci
 ok			OK-SIN13.ci
