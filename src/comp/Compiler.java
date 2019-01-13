@@ -273,6 +273,7 @@ public class Compiler {
             while(i<paramList.getSize()){
                 if(!paramList.get(i).getType().getName().equals(m.getParamList().get(i).getType().getName()))
                     this.error("Method signature is different from super method signature.");
+                i++;
             }
         }
         else if(m!=null)
@@ -372,7 +373,7 @@ public class Compiler {
                         this.error("Expected variable on left-hand side of assignment.");
                     next();
                     t2 = expr();
-                    if(!isTypeCompatible(t1, t2))
+                    if(!isTypeCompatible(t2, t1))
                         this.error("The two expressions have uncompatible type.");
                 } else if(t1!=Type.undefinedType)
                     this.error("The expression must not have a return.");
@@ -413,7 +414,7 @@ public class Compiler {
 			next();
 			// check if there is just one variable
 			Type t2 = expr();
-            if(!isTypeCompatible(t1, t2))
+            if(!isTypeCompatible(t2, t1))
                 this.error("The two expressions have uncompatible type.");
 		}
 
@@ -505,6 +506,8 @@ public class Compiler {
 		next();
 		check(Token.IDCOLON, "'print:' or 'println:' was expected after 'Out.'");
 		String printName = lexer.getStringValue();
+        if(!printName.equals("print") && !printName.equals("println"))
+            this.error("'print:' or 'println:' was expected after 'Out.'");
         next();
 		Type t = expr();
         if(t!=Type.intType && t!=Type.stringType)
@@ -616,9 +619,15 @@ public class Compiler {
     }
 
     private Type signalFactor(){
-        if(lexer.token==Token.PLUS || lexer.token==Token.MINUS)
+        boolean hasSignal = false;
+        if(lexer.token==Token.PLUS || lexer.token==Token.MINUS){
+            hasSignal = true;
             next();
-        return factor();
+        }
+        Type t = factor();
+        if(hasSignal && t!=Type.intType)
+            this.error("Expected int type.");
+        return t;
     }
 
     private Type factor(){
@@ -647,7 +656,7 @@ public class Compiler {
                 this.error("Cant use ! on "+t.getName()+" type.");
         }
         else if(lexer.token==Token.SUPER || lexer.token==Token.SELF){
-            t = primaryExpr();
+            t = primaryExpr(null);
         }
         else if(lexer.token==Token.ID){
             if(lexer.getStringValue().equals("In"))
@@ -670,8 +679,11 @@ public class Compiler {
                     t = ((Variable) o).getType();
                     next();
                     if(lexer.token==Token.DOT){
+                        if(t==Type.intType || t==Type.booleanType || t==Type.stringType ||
+                            t==Type.undefinedType || t==Type.nullType)
+                            this.error("Message sent to non-object.");
                         next();
-                        t = primaryExpr();
+                        t = primaryExpr(t);
                     }
                     else
                         isVariable = true;
@@ -707,7 +719,7 @@ public class Compiler {
         return t;
     }
 
-    private Type primaryExpr(){
+    private Type primaryExpr(Type variableType){
         Type t;
         String methodName = null;
         ArrayList<Type> exprList = new ArrayList<>();
@@ -734,8 +746,9 @@ public class Compiler {
                 this.error("Method signature is different from super method signature.");
             int i = 0;
             while(i<exprList.size()){
-                if(!exprList.get(i).getName().equals(m.getParamList().get(i).getType().getName()))
+                if(!isTypeCompatible(exprList.get(i), m.getParamList().get(i).getType()))
                     this.error("Expression type is different from method signature.");
+                i++;
             }
             t = m.getReturnType();
         }
@@ -801,6 +814,8 @@ public class Compiler {
                                 c = c.getSClass();
                             }
                         }
+                        else
+                            isVariable = true;
                     }
                     else
                         this.error("Something.");
@@ -813,8 +828,9 @@ public class Compiler {
                     this.error("Method signature is different from super method signature.");
                 int i = 0;
                 while(i<exprList.size()){
-                    if(!exprList.get(i).getName().equals(m.getParamList().get(i).getType().getName()))
+                    if(!isTypeCompatible(exprList.get(i), m.getParamList().get(i).getType()))
                         this.error("Expression type is different from method signature.");
+                    i++;
                 }
                 t = m.getReturnType();
             }
@@ -834,15 +850,30 @@ public class Compiler {
                 methodName = lexer.getStringValue();
                 next();
             }
-            Method m = (Method) symbolTable.getInClass(methodName);
+            Method m = null;
+            CianetoClass c = (CianetoClass) symbolTable.getInGlobal(variableType.getName());
+            do{
+                ArrayList<Member> memberList = c.getMemberList();
+                for(int i=0; i<memberList.size(); i++){
+                    Member member = memberList.get(i);
+                    if(member instanceof Method && ((Method)member).getName().equals(methodName)){
+                        m = (Method) member;
+                        break;
+                    }
+                }
+                if(m!=null)
+                    break;
+                c = c.getSClass();
+            }while(c!=null);
             if(m==null)
                 this.error("Method "+methodName+" does not exist in any class.");
             if(exprList.size()!=m.getParamList().getSize())
                 this.error("Method signature is different from super method signature.");
             int i = 0;
             while(i<exprList.size()){
-                if(!exprList.get(i).getName().equals(m.getParamList().get(i).getType().getName()))
+                if(!isTypeCompatible(exprList.get(i), m.getParamList().get(i).getType()))
                     this.error("Expression type is different from method signature.");
+                i++;
             }
             t = m.getReturnType();
         }
@@ -1017,12 +1048,6 @@ public class Compiler {
             CianetoClass c = (CianetoClass) symbolTable.getInGlobal(t1.getName());
             do{
                 if(c.getName().equals(t2.getName()))
-                    return true;
-                c = c.getSClass();
-            }while(c!=null);
-            c = (CianetoClass) symbolTable.getInGlobal(t2.getName());
-            do{
-                if(c.getName().equals(t1.getName()))
                     return true;
                 c = c.getSClass();
             }while(c!=null);
