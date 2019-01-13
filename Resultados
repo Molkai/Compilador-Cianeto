@@ -78,3 +78,28 @@ ok          ER-SEM70.ci
 ok          ER-SEM77.ci
 ok          ER-SEM78.ci         Sinalizado na linha errada (acho q o caso ta errado)
 ok          ER-SEM79.ci         Sinalizado na linha errada (acho q o caso ta errado)
+ok          ER-SEM80.ci         Sinalizado na linha errada (acho q o caso ta errado)
+ok          ER-SEM81.ci         Sinalizado na linha errada (acho q o caso ta errado)
+ok          er-sem82.ci         Sinalizado na linha errada (acho q o caso ta errado)
+ok          ER-SEM86.ci         Sinalizado na linha errada (acho q o caso ta errado)
+ok          ER-SEM88.ci         Sinalizado na linha errada (acho q o caso ta errado)
+ok          ER-SEM89.ci         Sinalizado na linha errada (acho q o caso ta errado)
+ok          ER-SEM90.ci
+ok          ER-SEM91.ci
+            er-sin-100.ci         Erro EOF
+            er-sin-100.ci         Erro EOF
+ok          ER-SIN-EXTRA.ci     Sinalizado na linha errada
+ok          ER-SIN-EXTRA01.ci   Sinalizado na linha errada
+ok          ER-SIN-EXTRA02.ci   Sinalizado na linha errada
+ok          ER-SIN01.ci
+ok          ER-SIN02.ci
+ok          ER-SIN03.ci
+ok          ER-SIN04.ci
+ok          ER-SIN05.ci         Sinalizado na linha errada (acho q o caso ta errado)
+ok?         ER-SIN06.ci         Erros diferentes mas acredito que o caso teste esta errado
+ok          ER-SIN07.ci
+ok?         ER-SIN08.ci         Está correto mas não gera report
+ok          ER-SIN09.ci
+ok          ER-SIN10.ci
+ok          ER-SIN11.ci
+            ER-SIN12.ci         Erro EOF

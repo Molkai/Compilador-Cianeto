@@ -1,11 +1,11 @@
-/* 
+/*
 William A Alves
 willianadrianoalves@hotmail.com
 */
 
 @cep(4, "identificado 'getUser' e ':' devem estar juntos", "")
-  
-class Milhar { 
+
+class Milhar
     var Int numero;
     func getUser : Int n -> Int {
         self.numero = n*1000;
@@ -13,11 +13,11 @@ class Milhar {
     }
 end
 
-class Program {
-    func run { 
-        var Milhar numero; 
+class Program
+    func run {
+        var Milhar numero;
         numero = Milhar.new;
         numero.getUser: 1;
-        Out.println: numero;        
-    } 
+        Out.println: numero;
+    }
 end
