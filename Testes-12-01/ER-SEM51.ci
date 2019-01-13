@@ -1,5 +1,5 @@
-/* 
-Giovana Vieira de Morais 
+/*
+Giovana Vieira de Morais
 giovana.vmorais@gmail.com
 */
 
@@ -7,9 +7,9 @@ giovana.vmorais@gmail.com
     "Method 'put' is being redefined in subclass 'B' with a signature different from the method of superclass 'A'",
     "comp.Compiler.methodDec()")
 
-open 
+open
 class A
-    private Int i;
+    private var Int i;
 
     public func put: Int x, Int y, Boolean ok {
 
@@ -17,14 +17,14 @@ class A
 end
 
 class B extends A
-    func put: Int x, Int y, Int ok {
+    override func put: Int x, Int y, Int ok {
     }
 end
 
 class Program {
     func run {
         var A a;
-        
+
         a = A.new;
         a.put: 0, 1, true;
     }

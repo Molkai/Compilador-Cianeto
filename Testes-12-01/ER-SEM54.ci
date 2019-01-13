@@ -1,8 +1,8 @@
-@cep(10, "An overridden method should be preceded by 'override'")
+@cep(10, "An overridden method should be preceded by 'override'", "")
 
-open 
+open
 class A
-    public func zero -> Int { 
+    public func zero -> Int {
         return 0;
     }
 end

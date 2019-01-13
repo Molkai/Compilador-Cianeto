@@ -424,11 +424,11 @@ public class Compiler {
 	private RepeatStat repeatStat() {
 		next();
         RepeatStat r = new RepeatStat();
-        isInsideLoop = true;
+        quantLoops++;
 		while ( lexer.token != Token.UNTIL && lexer.token != Token.RIGHTCURBRACKET && lexer.token != Token.END ) {
 			r.add(statement());
 		}
-        isInsideLoop = false;
+        quantLoops--;
 		check(Token.UNTIL, "'until' was expected");
         next();
         Type t = expr();
@@ -439,7 +439,7 @@ public class Compiler {
 
 	private BreakStat breakStat() {
 		next();
-        if(!isInsideLoop)
+        if(quantLoops==0)
             this.error("The break statement must be inside a loop.");
         return new BreakStat();
 	}
@@ -460,11 +460,11 @@ public class Compiler {
             this.error("Condition must be of type boolean.");
 		check(Token.LEFTCURBRACKET, "'{' expected after the 'while' expression");
 		next();
-        isInsideLoop = true;
+        quantLoops++;
 		while ( lexer.token != Token.RIGHTCURBRACKET && lexer.token != Token.END ) {
 			w.add(statement());
 		}
-        isInsideLoop = false;
+        quantLoops--;
 		check(Token.RIGHTCURBRACKET, "'}' was expected");
         next();
         return w;
@@ -571,7 +571,7 @@ public class Compiler {
             isConcat = true;
             next();
             Type t2 = sumSubExpr();
-            if(!(t1==Type.stringType || t1==Type.intType) && (t2==Type.stringType || t2==Type.intType))
+            if(!((t1==Type.stringType || t1==Type.intType) && (t2==Type.stringType || t2==Type.intType)))
                 this.error("Cant concat "+t1.getName()+" and "+t2.getName()+" types.");
         }
         if(isConcat)
@@ -662,7 +662,7 @@ public class Compiler {
             if(lexer.getStringValue().equals("In"))
                 t = readExpr();
             else{
-                Object o = symbolTable.get(lexer.getStringValue());
+                Object o = symbolTable.getInLocal(lexer.getStringValue());
                 if(o==null)
                     this.error("The identifier "+lexer.getStringValue()+" does not exist.");
                 if(o instanceof CianetoClass){
@@ -763,7 +763,14 @@ public class Compiler {
                     methodName = lexer.getStringValue();
                     next();
                     exprList = expressionList();
-                    m = (Method) symbolTable.getInClass(methodName);
+                    Object o = symbolTable.getInClass(methodName);
+                    if(o==null){
+                        o = symbolTable.getInSuperClass(methodName);
+                        if(o!=null)
+                            m = (Method) o;
+                    }
+                    else
+                        m = (Method) o;
                     isMethod = true;
                 }
                 else if(lexer.token==Token.ID){
@@ -771,8 +778,11 @@ public class Compiler {
                     //methodName = lexer.getStringValue();
                     Object o = symbolTable.getInClass(idName);
                     next();
-                    if(o==null)
-                        this.error("Id "+idName+" does not exist in class.");
+                    if(o==null){
+                        o = symbolTable.getInSuperClass(idName);
+                        if(o==null)
+                            this.error("Id "+idName+" does not exist in class.");
+                    }
                     if(o instanceof Method){
                         isMethod = true;
                         m = (Method) o;
@@ -823,7 +833,7 @@ public class Compiler {
             }
             if(isMethod){
                 if(m==null)
-                    this.error("Method "+methodName+" does not exist in super class.");
+                    this.error("Method "+methodName+" does not exist in any class.");
                 if(exprList.size()!=m.getParamList().getSize())
                     this.error("Method signature is different from super method signature.");
                 int i = 0;
@@ -856,7 +866,8 @@ public class Compiler {
                 ArrayList<Member> memberList = c.getMemberList();
                 for(int i=0; i<memberList.size(); i++){
                     Member member = memberList.get(i);
-                    if(member instanceof Method && ((Method)member).getName().equals(methodName)){
+                    if(member instanceof Method && ((Method)member).getQualifier().isPublic()
+                        && ((Method)member).getName().equals(methodName)){
                         m = (Method) member;
                         break;
                     }
@@ -1058,7 +1069,7 @@ public class Compiler {
 	private SymbolTable		symbolTable;
 	private Lexer			lexer;
 	private ErrorSignaller	signalError;
-    private boolean         isInsideLoop;
+    private int             quantLoops = 0;
     private Type            currentMethodType;
     private boolean         hasReturn;
     private boolean         isVariable;
