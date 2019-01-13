@@ -1,26 +1,26 @@
-/* 
+/*
     Caroline Aparecida
     hicaarol@gmail.com
 */
 
-@cep(9, "Método com nome igual a de variável de instância", 
+@cep(9, "Metodo com nome igual a de variavel de instancia",
    "Method 'i' has name equal to an instance variable",
    "comp.Compiler.methodDec()")
-  
 
-class A 
+
+class A
 
     var Int i;
 
-    func i {       
+    func i {
     }
 
 end
 
-class Program 
-    
+class Program
+
     func run {
-        var A a;  
+        var A a;
         a = A.new;
         a.i;
     }

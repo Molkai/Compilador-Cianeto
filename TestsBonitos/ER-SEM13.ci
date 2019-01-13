@@ -1,12 +1,11 @@
-@cep(8, "Nao ha metodo readBoolean")
-  
+@cep(8, "Nao ha metodo readBoolean", "")
 
-class Program 
-   
+class Program
+
    func run {
       var Boolean b;
-      
+
       b = In.readBoolean;
-   }   
+   }
 
 end
