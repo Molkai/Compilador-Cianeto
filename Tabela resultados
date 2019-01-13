@@ -77,7 +77,7 @@ ok			OK-SEM03.ci
 ok			OK-SEM04.ci
 ok			OK-SEM05.ci
 ok			OK-SEM06.ci
-			OK-SEM07.ci          --Problema com whiles e breaks aninhados
+ok			OK-SEM07.ci
 ok			OK-SEM08.ci
 			OK-SEM09.ci          --Classe estanciar ela mesma pode?
 ok			OK-SEM10.ci
