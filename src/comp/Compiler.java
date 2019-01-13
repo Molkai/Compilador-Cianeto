@@ -344,6 +344,11 @@ public class Compiler {
 			s = whileStat();
 			checkSemiColon = false;
 			break;
+        case SEMICOLON:
+            next();
+            s = new SemicolonStat();
+            checkSemiColon = false;
+            break;
 		case RETURN:
 			s = returnStat();
 			break;

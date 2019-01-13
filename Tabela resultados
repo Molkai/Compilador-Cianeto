@@ -95,7 +95,7 @@ ok			OK-SIN04.ci
 ok			OK-SIN08.ci
 ok			OK-SIN09.ci
 			OK-SIN10.ci          --Problema com self e metodos de superclasses
-			OK-SIN11.ci          --Aceitar ';' como um statement
+ok			OK-SIN11.ci
 ok			OK-SIN12.ci
 ok			OK-SIN13.ci
 ok			OK-SIN14.ci
