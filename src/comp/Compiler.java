@@ -60,6 +60,12 @@ public class Compiler {
             }
 
         }
+        if(!thereWasAnError && !insideProgram) {
+            try{
+                this.error("Need class Program.");
+            } catch( CompilerError e){
+            }
+        }
         if ( !thereWasAnError && lexer.token != Token.EOF ) {
             try {
                 error("End of file expected");
@@ -176,9 +182,16 @@ public class Compiler {
             }while(auxSuperClass!=null);
             lexer.nextToken();
         }
+        if(className.equals("Program"))
+            insideProgram = true;
+
         ArrayList<Member> m = memberList(isOpen);
+
         if ( lexer.token != Token.END)
             error("'end' expected");
+        if(insideProgram && !hasRun)
+            this.error("Program need method run with no parameters and return value.");
+
         lexer.nextToken();
 
         CianetoClass c = new CianetoClass(className, isOpen, superClass, m);
@@ -289,6 +302,8 @@ public class Compiler {
 		if ( lexer.token != Token.RIGHTCURBRACKET ) {
 			error("'}' expected");
 		}
+        if(insideProgram && methodName.equals("run") && paramList.getSize()==0 && q.isPublic() && type==Type.undefinedType)
+            hasRun = true;
         Method method = new Method(methodName, paramList, type, s, q);
         symbolTable.putInClass(methodName, method);
         symbolTable.removeLocalIdent();
@@ -662,7 +677,7 @@ public class Compiler {
             if(lexer.getStringValue().equals("In"))
                 t = readExpr();
             else{
-                Object o = symbolTable.getInLocal(lexer.getStringValue());
+                Object o = symbolTable.get(lexer.getStringValue());
                 if(o==null)
                     this.error("The identifier "+lexer.getStringValue()+" does not exist.");
                 if(o instanceof CianetoClass){
@@ -1073,5 +1088,7 @@ public class Compiler {
     private Type            currentMethodType;
     private boolean         hasReturn;
     private boolean         isVariable;
+    private boolean         insideProgram = false;
+    private boolean         hasRun = false;
 
 }

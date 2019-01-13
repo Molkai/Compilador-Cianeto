@@ -50,10 +50,6 @@ public class SymbolTable {
               // found local identifier
             return result;
         }
-        else if( (result = classTable.get(key)) != null ){
-              // found class field or method identifier
-            return result;
-        }
         else {
               // global identifier, if it is in globalTable
             return globalTable.get(key);

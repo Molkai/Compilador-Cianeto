@@ -1,4 +1,4 @@
-/* 
+/*
 Gustavo Eda
 edapd12@gmail.com
 */
@@ -7,9 +7,9 @@ edapd12@gmail.com
     "Method 'run' of class 'Program' cannot take parameters",
     "comp.Compiler.classDec()")
 
-class Program {
-    
-    func run: Int n {  
+class Program
+
+    func run: Int n {
     }
 
 end
