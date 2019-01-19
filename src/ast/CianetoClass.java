@@ -5,11 +5,11 @@ import java.util.*;
  */
 public class CianetoClass extends Type {
 
-    public CianetoClass( String name, boolean open, CianetoClass superClass, ArrayList<Member> memberList ) {
+    public CianetoClass( String name, boolean open, CianetoClass superClass ) {
         super(name);
         this.open = open;
         this.superClass = superClass;
-        this.memberList = memberList;
+        this.memberList = new ArrayList<>();
     }
 
     public String getCname() {
@@ -26,6 +26,10 @@ public class CianetoClass extends Type {
 
     public ArrayList<Member> getMemberList(){
         return memberList;
+    }
+
+    public void addMember(Member m){
+        memberList.add(m);
     }
 
     private String name;

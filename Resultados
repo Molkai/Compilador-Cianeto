@@ -1,15 +1,15 @@
 Testado     Caso Teste          Comentarios
 
 ok          ER-LEX-EXTRA01.ci
-            er-lex01.ci         Erro EOF
-            er-lex02.ci         Erro EOF
-ok          ER-LEX03.ci         É pra ser Out.println (antes estava write())
-ok?         ER-LEX04.ci         Report aparecendo certo mas aparece coisas no terminal
+ok          er-lex01.ci
+ok          er-lex02.ci
+ok          ER-LEX03.ci
+            ER-LEX04.ci         Problemas #
 ok          ER-LEX05.ci
 ok          ER-LEX06.ci
 ok          ER-LEX07.ci
 ok          ER-LEX08.ci
-            ER-SEM-100.ci         Erro EOF
+ok          ER-SEM-100.ci
 ok          ER-SEM-EXTRA01.ci
 ok          ER-SEM-EXTRA02.ci
 ok          ER-SEM01.ci
@@ -19,9 +19,9 @@ ok          ER-SEM04.ci
 ok          ER-SEM05.ci
 ok          ER-SEM06.ci
 ok          ER-SEM07.ci
-ok?         ER-SEM08.ci         Sinalizado na linha errada
-ok?         ER-SEM09.ci         Sinalizado na linha errada
-ok?         ER-SEM11.ci         Sinalizado na linha errada
+ok          ER-SEM08.ci
+ok          ER-SEM09.ci
+ok          ER-SEM11.ci
 ok          ER-SEM12.ci
 ok          ER-SEM13.ci
 ok          ER-SEM14.ci
@@ -38,8 +38,8 @@ ok          ER-SEM24.ci
 ok          ER-SEM25.ci
 ok          ER-SEM26.ci
 ok          ER-SEM27.ci
-ok?         ER-SEM28.ci         Sinalizado na linha errada (acho q o caso ta errado)
-ok?         ER-SEM29.ci         Sinalizado na linha errada (acho q o caso ta errado)
+ok          ER-SEM28.ci
+ok          ER-SEM29.ci
 ok          ER-SEM30.ci
 ok          ER-SEM31.ci
 ok          ER-SEM32.ci
@@ -48,58 +48,58 @@ ok          ER-SEM34.ci
 ok          ER-SEM35.ci
 ok          ER-SEM36.ci
 ok          ER-SEM37.ci
-ok?         ER-SEM38.ci         Acho q o caso ta errado
-ok?         ER-SEM39.ci         Erro está correto mas não gera report (aparece no proprio terminal)
-ok?         ER-SEM40.ci         Erro está correto mas não gera report (aparece no proprio terminal)
-ok?         ER-SEM41.ci         Erro está correto mas não gera report (aparece no proprio terminal)
+ok          ER-SEM38.ci
+ok          ER-SEM39.ci
+ok          ER-SEM40.ci
+ok          ER-SEM41.ci
 ok          ER-SEM42.ci
 ok          ER-SEM43.ci
 ok          ER-SEM44.ci
-ok?         ER-SEM45.ci         Erro q dá diz que run não existe (oq tecnicamente está certo)
+ok          ER-SEM45.ci
 ok          ER-SEM46.ci
 ok          ER-SEM47.ci
 ok          ER-SEM48.ci
 ok          ER-SEM49.ci
-ok          ER-SEM50.ci         Erro está correto mas não gera report (aparece no proprio terminal)
-ok?         ER-SEM51.ci         Sinalizado na linha errada (acho q o caso ta errado)
+ok          ER-SEM50.ci
+ok          ER-SEM51.ci
 ok          ER-SEM52.ci
 ok          ER-SEM53.ci
 ok          ER-SEM54.ci
-ok?         ER-SEM55.ci         Sinalizado na linha errada (acho q o caso ta errado)
-ok?         ER-SEM56.ci         Sinalizado na linha errada (acho q o caso ta errado)
-ok?         ER-SEM57.ci         Sinalizado na linha errada (acho q o caso ta errado)
-ok?         ER-SEM58.ci         Sinalizado na linha errada (acho q o caso ta errado)
-ok?         ER-SEM59.ci         Sinalizado na linha errada (acho q o caso ta errado)
+ok          ER-SEM55.ci
+ok          ER-SEM56.ci
+ok          ER-SEM57.ci
+ok          ER-SEM58.ci
+ok          ER-SEM59.ci
 ok          ER-SEM60.ci
 ok          ER-SEM61.ci
 ok          ER-SEM62.ci
 ok          ER-SEM68.ci
 ok          ER-SEM70.ci
 ok          ER-SEM77.ci
-ok          ER-SEM78.ci         Sinalizado na linha errada (acho q o caso ta errado)
-ok          ER-SEM79.ci         Sinalizado na linha errada (acho q o caso ta errado)
-ok          ER-SEM80.ci         Sinalizado na linha errada (acho q o caso ta errado)
-ok          ER-SEM81.ci         Sinalizado na linha errada (acho q o caso ta errado)
-ok          er-sem82.ci         Sinalizado na linha errada (acho q o caso ta errado)
-ok          ER-SEM86.ci         Sinalizado na linha errada (acho q o caso ta errado)
-ok          ER-SEM88.ci         Sinalizado na linha errada (acho q o caso ta errado)
-ok          ER-SEM89.ci         Sinalizado na linha errada (acho q o caso ta errado)
+ok          ER-SEM78.ci
+ok          ER-SEM79.ci
+ok          ER-SEM80.ci
+ok          ER-SEM81.ci
+ok          er-sem82.ci
+ok          ER-SEM86.ci
+ok          ER-SEM88.ci
+ok          ER-SEM89.ci
 ok          ER-SEM90.ci
 ok          ER-SEM91.ci
-            er-sin-100.ci         Erro EOF
-            er-sin-100.ci         Erro EOF
-ok          ER-SIN-EXTRA.ci     Sinalizado na linha errada
-ok          ER-SIN-EXTRA01.ci   Sinalizado na linha errada
-ok          ER-SIN-EXTRA02.ci   Sinalizado na linha errada
+ok          er-sin-100.ci
+ok          er-sin-101.ci
+ok          ER-SIN-EXTRA.ci
+ok          ER-SIN-EXTRA01.ci
+ok          ER-SIN-EXTRA02.ci
 ok          ER-SIN01.ci
 ok          ER-SIN02.ci
 ok          ER-SIN03.ci
 ok          ER-SIN04.ci
-ok          ER-SIN05.ci         Sinalizado na linha errada (acho q o caso ta errado)
-ok?         ER-SIN06.ci         Erros diferentes mas acredito que o caso teste esta errado
+ok          ER-SIN05.ci
+ok          ER-SIN06.ci
 ok          ER-SIN07.ci
-ok?         ER-SIN08.ci         Está correto mas não gera report
+ok          ER-SIN08.ci
 ok          ER-SIN09.ci
 ok          ER-SIN10.ci
 ok          ER-SIN11.ci
-            ER-SIN12.ci         Erro EOF
+ok          ER-SIN12.ci

@@ -1,8 +1,9 @@
-﻿/*
+/*
 Vitor Mesquita Fogaça
 vitor.fogaca@outlook.com
 */
-@cep(17, "type 'Integer' not recognized")
+
+@cep(17, "type 'Integer' not recognized", "")
 
 class Teste
     var Int n;

@@ -1,11 +1,18 @@
 // Isabela Sayuri Matsumoto - 726539 isabelasassa@hotmail.com
-@cep(5,"Expressão ausente após ','","Expression expected", "comp.Compiler.factor()")
+@cep(13,"Expressão ausente após ','","Expression expected", "comp.Compiler.factor()")
 
-class Program {
-  
+class A
+    func b: Int c, Int d, Int e{}
+end
+
+class Program
+
+    var A a;
+    var Int c;
+    var Int d;
+
     func run{
-        a.b: c, d,; 
-                
+        self.a.b: self.c, self.d,;
     }
 
 end

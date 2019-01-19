@@ -17,8 +17,6 @@ class Program
     var Int j;
 
     func run {
-        self.j = 2;
-        self.i = 1 + self.j;
-        Out.println: self.i ;
+        Out.println: self.i;
     }
 end

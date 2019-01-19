@@ -2,11 +2,11 @@ package ast;
 import java.util.*;
 
 public class Method extends Member {
-    public Method(String name, VariableList paramList, Type returnType, ArrayList<Statement> statementList, Qualifier qualifier) {
+    public Method(String name, VariableList paramList, Type returnType, Qualifier qualifier) {
         this.name = name;
         this.paramList = paramList;
         this.returnType = returnType;
-        this.statementList = statementList;
+        this.statementList = new ArrayList<>();
         this.qualifier = qualifier;
     }
 
@@ -28,6 +28,10 @@ public class Method extends Member {
 
     public ArrayList<Statement> getStatementList(){
         return statementList;
+    }
+
+    public void addStatement(Statement s){
+        statementList.add(s);
     }
 
     private Qualifier qualifier;

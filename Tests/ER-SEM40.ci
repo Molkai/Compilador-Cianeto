@@ -3,12 +3,12 @@ Evelin Soares
 evelincontatos@gmail.com
 */
 
-@ce(27, "Erro de tipos. O tipo de 'a', 'A', não é subclasse de 'B', o tipo do parâmetro",
+@cep(27, "Erro de tipos. O tipo de 'a', 'A', não é subclasse de 'B', o tipo do parâmetro",
       "Type error: the type of the real parameter is not subclass of the type of the formal parameter",
       "comp.Compiler.factor()")
 
 
-open 
+open
 class A
 
     private Int n;
@@ -25,7 +25,7 @@ class A
 end
 
 
-open 
+open
 class B extends A
 
     func set: Int pn {

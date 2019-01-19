@@ -8,37 +8,37 @@
   */
 
 open
-class A
-
+class A 
+   
    func first: Int pn {
-   }
+   }   
 
 end
 
 open
-class B extends A
-
+class B extends A 
+   
    func second {
-   }
+   }   
 
 end
 
 
-class C extends B
-
+class C extends B 
+   
    func third {
-   }
+   }   
 
 end
 
 
-class Program
-
+class Program 
+   
    public func run {
       var A a;
       var B b;
       var C c;
-
+      
       a = A.new;
       b = B.new;
       c = C.new;
@@ -51,7 +51,7 @@ class Program
       a = b;
       a = c;
       b = c;
-   }
+   }   
 
 end
 

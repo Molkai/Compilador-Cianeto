@@ -1,4 +1,4 @@
-/*
+/* 
     Matteus Takeshi Dias
     matteus_cti@hotmail.com
 */
@@ -12,35 +12,35 @@
 
 
   */
-
-open
+  
+open 
 class A
-
+   
     var Int k;
-
+   
     public func get_A -> Int {
         return self.k;
-    }
+    }   
     public func set: Int k {
         self.k = k;
-    }
+    }   
     public func print {
         Out.print: self.get_A;
-    }
+    }   
     public func init {
         self.set: 0;
-    }
+    }   
 
 end
 
 
 class B extends A
-
+   
     var Int k;
-
+   
     public func get_B -> Int {
         return self.k;
-    }
+    }   
     override
     public func init {
         super.init;
@@ -51,7 +51,7 @@ class B extends A
         Out.print: self.get_B;
         Out.print: self.get_A;
         super.print;
-    }
+    }   
 
 end
 
@@ -60,18 +60,18 @@ class C extends A
     override
     public func get_A -> Int {
         return 0;
-    }
+    }   
 
 end
 
 
 class Program
-
+   
     public func run {
         var A a;
         var B b;
         var C c;
-
+      
         Out.println: "";
         Out.println: "Ok-ger16";
         Out.println: "The output should be: ";
@@ -92,7 +92,7 @@ class Program
         Out.print: a.get_A;
         c = C.new;
         Out.print: c.get_A;
-    }
+    }   
 
 end
 

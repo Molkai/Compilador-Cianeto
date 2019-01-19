@@ -1,16 +1,16 @@
-﻿/*
+/*
 Vitor Mesquita Fogaça
 vitor.fogaca@outlook.com
 */
-      
+@cep(10, "token 'this' not recognized", "")
+
 class Teste
     var Int n;
-	
+
     func get -> Int {
         return self.n;
     }
-	
-	@cep(2, "token 'this' not recognized");
+
     func set: Int n {
         this.n = n;
     }

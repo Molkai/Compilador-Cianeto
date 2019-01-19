@@ -13,17 +13,19 @@
 */
 
 
-class Program
+class Program 
 
     func run {
         var Boolean b;
         b = false;
         repeat
-
+            
         until false;
+        
         repeat
 
         until b;
+        
         var Int i, j, n;
         i = 0;
         j = 0;

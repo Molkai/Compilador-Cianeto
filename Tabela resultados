@@ -32,7 +32,7 @@ l			ER-SIN41.ci
 l			ER-SIN43.ci
 ok			ER-SIN44.ci
 ok			ER-SIN57.ci
-			ER-SIN58.ci 		--Classe estanciar ela mesma pode?
+ok			ER-SIN58.ci
 ok			ER-SIN59.ci
 ok			ER-SIN60.ci
 ok			ER-SIN61.ci
@@ -41,10 +41,10 @@ ok			ER-SIN63.ci
 l			ER-SIN-EXTRA01.ci
 ok			ER-SIN-EXTRA02.ci
 l			ER-SIN-EXTRA.ci
-			ok-calc.ci           --Problema para analisar expressoes grandes
+ok			ok-calc.ci
 ok			OK-CHK07.ci
-			ok-fact.ci           --Classe estanciar ela mesma pode?
-			ok-fib.ci            --Classe estanciar ela mesma pode?
+ok			ok-fact.ci
+ok			ok-fib.ci
 ok			OK-FieldDec.ci
 ok			OK-GER01.ci
 ok			OK-GER02.ci
@@ -58,7 +58,7 @@ ok			OK-GER09.ci
 ok			OK-GER10.ci
 ok			OK-GER11.ci
 ok			OK-GER12.ci
-			OK-GER13.ci          --Classe estanciar ela mesma pode?
+ok			OK-GER13.ci
 ok			OK-GER14.ci
 ok			OK-GER15.ci
 ok			OK-GER16.ci
@@ -72,20 +72,20 @@ ok			OK-LEX06.ci
 ok			OK-LEX08.ci
 ok			OK-LEX10.ci
 ok			ok-math.ci
-			ok-queue.ci          --Classe estanciar ela mesma pode?
+ok			ok-queue.ci
 ok			OK-SEM03.ci
 ok			OK-SEM04.ci
 ok			OK-SEM05.ci
 ok			OK-SEM06.ci
 ok			OK-SEM07.ci
 ok			OK-SEM08.ci
-			OK-SEM09.ci          --Classe estanciar ela mesma pode?
+ok			OK-SEM09.ci
 ok			OK-SEM10.ci
 ok			OK-SEM11.ci
-			OK-SEM12.ci          --Classe estanciar ela mesma pode?
+ok			OK-SEM12.ci
 ok			OK-SEM13.ci
 ok			OK-SEM14.ci
-			OK-SEM15.ci          --Classe estanciar ela mesma pode?
+ok			OK-SEM15.ci
 ok			ok-sem16.ci
 ok			ok-sem17.ci
 ok			OK-SEM18.ci

@@ -185,7 +185,13 @@ public class Compiler {
         if(className.equals("Program"))
             insideProgram = true;
 
-        ArrayList<Member> m = memberList(isOpen);
+        CianetoClass c = new CianetoClass(className, isOpen, superClass);
+
+        symbolTable.putInGlobal(className, c);
+
+        currentClassType = new Type(className);
+
+        memberList(isOpen, c);
 
         if ( lexer.token != Token.END)
             error("'end' expected");
@@ -194,36 +200,29 @@ public class Compiler {
 
         lexer.nextToken();
 
-        CianetoClass c = new CianetoClass(className, isOpen, superClass, m);
-
-        symbolTable.putInGlobal(className, c);
-
         symbolTable.removeClassIdent();
 
         return c;
 
     }
 
-	private ArrayList<Member> memberList(boolean isOpen) {
-        ArrayList<Member> memberList = new ArrayList<Member>();
+	private void memberList(boolean isOpen, CianetoClass c) {
         while ( true ) {
             Qualifier q = qualifier();
             if ( lexer.token == Token.VAR ) {
                 if(q==null)
                     q = new Qualifier(false, true, false, false);
-                memberList.add(fieldDec(q));
+                c.addMember(fieldDec(q));
             }
             else if ( lexer.token == Token.FUNC ) {
                 if(q==null)
                     q = new Qualifier(true, false, false, false);
-                memberList.add(methodDec(q, isOpen));
+                c.addMember(methodDec(q, isOpen));
             }
             else {
                 break;
             }
         }
-
-        return memberList;
     }
 
 	private void error(String msg) {
@@ -294,9 +293,11 @@ public class Compiler {
 			error("'{' expected");
 		}
 		next();
+        Method method = new Method(methodName, paramList, type, q);
+        symbolTable.putInClass(methodName, method);
         currentMethodType = type;
         hasReturn = false;
-		ArrayList<Statement> s = statementList();
+		statementList(method);
         if(currentMethodType!=Type.undefinedType && !hasReturn)
             this.error("Method does not have a return.");
 		if ( lexer.token != Token.RIGHTCURBRACKET ) {
@@ -304,8 +305,6 @@ public class Compiler {
 		}
         if(insideProgram && methodName.equals("run") && paramList.getSize()==0 && q.isPublic() && type==Type.undefinedType)
             hasRun = true;
-        Method method = new Method(methodName, paramList, type, s, q);
-        symbolTable.putInClass(methodName, method);
         symbolTable.removeLocalIdent();
 		next();
         return method;
@@ -338,13 +337,11 @@ public class Compiler {
         return variableList;
     }
 
-	private ArrayList<Statement> statementList() {
+	private void statementList(Method m) {
 		  // only '}' is necessary in this test
-        ArrayList<Statement> statementList = new ArrayList<>();
 		while ( lexer.token != Token.RIGHTCURBRACKET && lexer.token != Token.END ) {
-			statementList.add(statement());
+			m.addStatement(statement());
 		}
-        return statementList;
 	}
 
 	private Statement statement() {
@@ -443,18 +440,12 @@ public class Compiler {
 
 	private RepeatStat repeatStat() {
 		next();
-        if(lexer.token!=Token.LEFTCURBRACKET)
-            this.error("{ expected.");
-        next();
         RepeatStat r = new RepeatStat();
         quantLoops++;
 		while ( lexer.token != Token.UNTIL && lexer.token != Token.RIGHTCURBRACKET && lexer.token != Token.END ) {
 			r.add(statement());
 		}
         quantLoops--;
-        if(lexer.token!=Token.RIGHTCURBRACKET)
-            this.error("} expected.");
-        next();
 		check(Token.UNTIL, "'until' was expected");
         next();
         Type t = expr();
@@ -697,8 +688,10 @@ public class Compiler {
                     if(lexer.token!=Token.DOT)
                         this.error("'.' expected");
                     next();
-                    if(lexer.token!=Token.NEW)
+                    if(lexer.token!=Token.NEW){
+                        System.out.println(lexer.token.toString());
                         this.error("'new' expected");
+                    }
                     next();
                 }
                 else{
@@ -834,20 +827,26 @@ public class Compiler {
                             }
                             m = null;
                             CianetoClass c = (CianetoClass) symbolTable.getInGlobal(v.getType().getName());
-                            while(c!=null){
-                                ArrayList<Member> memberList = c.getMemberList();
-                                int i = 0;
-                                while(i < memberList.size()){
-                                    if(memberList.get(i) instanceof Method)
-                                        if(((Method) memberList.get(i)).getName().equals(methodName)){
-                                            m = (Method) memberList.get(i);
-                                            break;
-                                        }
-                                    i++;
+                            Object obj = symbolTable.getInClass(methodName);
+                            if(obj != null && obj instanceof Method){
+                                m = (Method) obj;
+                            }
+                            else{
+                                while(c!=null){
+                                    ArrayList<Member> memberList = c.getMemberList();
+                                    int i = 0;
+                                    while(i < memberList.size()){
+                                        if(memberList.get(i) instanceof Method)
+                                            if(((Method) memberList.get(i)).getName().equals(methodName)){
+                                                m = (Method) memberList.get(i);
+                                                break;
+                                            }
+                                        i++;
+                                    }
+                                    if(i<memberList.size())
+                                        break;
+                                    c = c.getSClass();
                                 }
-                                if(i<memberList.size())
-                                    break;
-                                c = c.getSClass();
                             }
                         }
                         else
@@ -856,22 +855,24 @@ public class Compiler {
                     else
                         this.error("Something.");
                 }
-            }
-            if(isMethod){
-                if(m==null)
-                    this.error("Method "+methodName+" does not exist in any class.");
-                if(exprList.size()!=m.getParamList().getSize())
-                    this.error("Method signature is different from super method signature.");
-                int i = 0;
-                while(i<exprList.size()){
-                    if(!isTypeCompatible(exprList.get(i), m.getParamList().get(i).getType()))
-                        this.error("Expression type is different from method signature.");
-                    i++;
+                if(isMethod){
+                    if(m==null)
+                        this.error("Method "+methodName+" does not exist in any class.");
+                    if(exprList.size()!=m.getParamList().getSize())
+                        this.error("Method signature is different from super method signature.");
+                    int i = 0;
+                    while(i<exprList.size()){
+                        if(!isTypeCompatible(exprList.get(i), m.getParamList().get(i).getType()))
+                            this.error("Expression type is different from method signature.");
+                        i++;
+                    }
+                    t = m.getReturnType();
                 }
-                t = m.getReturnType();
+                else
+                    t = v.getType();
             }
             else
-                t = v.getType();
+                t = currentClassType;
         }
 
         else{
@@ -888,20 +889,26 @@ public class Compiler {
             }
             Method m = null;
             CianetoClass c = (CianetoClass) symbolTable.getInGlobal(variableType.getName());
-            do{
-                ArrayList<Member> memberList = c.getMemberList();
-                for(int i=0; i<memberList.size(); i++){
-                    Member member = memberList.get(i);
-                    if(member instanceof Method && ((Method)member).getQualifier().isPublic()
-                        && ((Method)member).getName().equals(methodName)){
-                        m = (Method) member;
-                        break;
+            Object o = symbolTable.getInClass(methodName);
+            if(o != null && o instanceof Method){
+                m = (Method) o;
+            }
+            else{
+                while(c!=null){
+                    ArrayList<Member> memberList = c.getMemberList();
+                    for(int i=0; i<memberList.size(); i++){
+                        Member member = memberList.get(i);
+                        if(member instanceof Method && ((Method)member).getQualifier().isPublic()
+                            && ((Method)member).getName().equals(methodName)){
+                            m = (Method) member;
+                            break;
+                        }
                     }
+                    if(m!=null)
+                        break;
+                    c = c.getSClass();
                 }
-                if(m!=null)
-                    break;
-                c = c.getSClass();
-            }while(c!=null);
+            }
             if(m==null)
                 this.error("Method "+methodName+" does not exist in any class.");
             if(exprList.size()!=m.getParamList().getSize())
@@ -1101,5 +1108,6 @@ public class Compiler {
     private boolean         isVariable;
     private boolean         insideProgram = false;
     private boolean         hasRun = false;
+    private Type            currentClassType;
 
 }
