@@ -812,7 +812,7 @@ public class Compiler {
                             isMethod = true;
                             if(v.getType()==Type.intType || v.getType()==Type.booleanType
                                 || v.getType()==Type.stringType)
-                                this.error("Nonono");
+                                this.error("Unexpected error.");
                             next();
                             if(lexer.token==Token.IDCOLON){
                                 methodName = lexer.getStringValue();
@@ -853,7 +853,7 @@ public class Compiler {
                             isVariable = true;
                     }
                     else
-                        this.error("Something.");
+                        this.error("An error has ocurred.");
                 }
                 if(isMethod){
                     if(m==null)
