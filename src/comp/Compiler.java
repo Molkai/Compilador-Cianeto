@@ -1,3 +1,8 @@
+/*
+Nomes:                                      RA:
+Lucca La Fonte Albuquerque Carvalho         726563
+Vinícius de Souza Carvalho                  726592
+*/
 
 package comp;
 
@@ -648,7 +653,6 @@ public class Compiler {
 
     private Type factor(){
         Type t = null;
-        //System.out.println(lexer.token.toString());
         if(lexer.token==Token.LITERALINT || lexer.token==Token.LITERALSTRING ||
             lexer.token==Token.TRUE || lexer.token==Token.FALSE){
             if(lexer.token==Token.LITERALINT)
@@ -689,7 +693,6 @@ public class Compiler {
                         this.error("'.' expected");
                     next();
                     if(lexer.token!=Token.NEW){
-                        System.out.println(lexer.token.toString());
                         this.error("'new' expected");
                     }
                     next();

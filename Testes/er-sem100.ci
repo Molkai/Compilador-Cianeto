@@ -1,14 +1,17 @@
-﻿/*
+/*
 Vitor Mesquita Fogaça
 vitor.fogaca@outlook.com
 */
-      
-@cep(4, "missing 'return' statement", "missing 'return' statement");
+
+@cep(20, "variable 'error' not found", "Identifer 'error' was not found")
+
 class Teste
     var Int n;
-    
-    func get -> Int { }
-    
+
+    func get -> Int {
+        return self.n;
+    }
+
     func set: Int n {
         self.n = n;
     }
@@ -20,7 +23,7 @@ class Program
         var Int a;
         t = Teste.new;
         a = In.readInt;
-        t.set: a;
+        t.set: error;
         Out.println: t.get;
     }
 end

@@ -11,7 +11,7 @@
         FieldDec ::= “var” Type IdList [ “;” ]
 */
 
-class Program
+class Program 
 
     var Int i
     var Int j;

@@ -1,3 +1,9 @@
+/*
+Nomes:                                      RA:
+Lucca La Fonte Albuquerque Carvalho         726563
+Vinícius de Souza Carvalho                  726592
+*/
+
 package ast;
 
 import java.util.*;
@@ -5,7 +11,7 @@ import comp.CompilationError;
 
 public class Program {
 
-	public Program(ArrayList<CianetoClass> classList, ArrayList<MetaobjectAnnotation> metaobjectCallList, 
+	public Program(ArrayList<CianetoClass> classList, ArrayList<MetaobjectAnnotation> metaobjectCallList,
 			       ArrayList<CompilationError> compilationErrorList) {
 		this.classList = classList;
 		this.metaobjectCallList = metaobjectCallList;
@@ -18,7 +24,7 @@ public class Program {
 
 	public void genC(PW pw) {
 	}
-	
+
 	public ArrayList<CianetoClass> getClassList() {
 		return classList;
 	}
@@ -27,7 +33,7 @@ public class Program {
 	public ArrayList<MetaobjectAnnotation> getMetaobjectCallList() {
 		return metaobjectCallList;
 	}
-	
+
 
 	public boolean hasCompilationErrors() {
 		return compilationErrorList != null && compilationErrorList.size() > 0 ;
@@ -37,11 +43,11 @@ public class Program {
 		return compilationErrorList;
 	}
 
-	
+
 	private ArrayList<CianetoClass> classList;
 	private ArrayList<MetaobjectAnnotation> metaobjectCallList;
-	
+
 	ArrayList<CompilationError> compilationErrorList;
 
-	
+
 }
